@@ -31,6 +31,37 @@ Wiki pages live in `wiki/src/content/wiki` as Markdown or MDX. The build checks 
 
 Link another page with `[[slug]]` or `[[slug|label]]`. The build resolves that to a URL under `/kb-wiki`. A target that is not a page fails the build, and the error names the file and the target. Fenced code and inline code are not links. Backlinks are the other pages whose bodies link here.
 
+The home page, the tag list, and the source list are built from that frontmatter. There is no hand-maintained list of pages on the site. The nav Index is the home page. Log, Tags, and Sources are pages. Graph is not a page yet.
+
+## Log
+
+[`log.md`](log.md) at the repository root is an append-only changelog. Add a new entry directly under the introduction, above the older entries. Do not edit an entry after it is written.
+
+```markdown
+## [YYYY-MM-DD] action | subject
+
+What changed, in a sentence or two.
+
++ slug-of-a-new-page
+~ slug-of-a-page-that-changed
+```
+
+`YYYY-MM-DD` is a real calendar day. `action` is `ingest`, `query`, `lint`, or `update`. The subject is one line. The body runs until the next entry and must not be empty. A line that starts with `+`, `~`, `!`, or `>` is a detail (added, changed, a warning, or filed). Any other `##` heading fails the build. The error names `log.md` and the line.
+
+`npm run build` reads this file. A malformed entry fails the build.
+
+## Catalogue
+
+[`index.md`](index.md) at the repository root is the agent-maintained catalogue. One line per page, grouped by type. The link points at the source file. The text after the em dash (`—`) is the summary from that page's frontmatter.
+
+```markdown
+## Concept
+
+- [LLM wiki](wiki/src/content/wiki/llm-wiki.md) — A wiki whose pages are written and revised by a language model, from sources a person chooses to keep.
+```
+
+The sections are `Concept`, `Comparison`, `Entity`, and `Source`. The build checks this file against `wiki/src/content/wiki`. It fails, and names the page, when a page is missing, a line names a page that does not exist, a page is under the wrong type, or the title or summary disagrees with the frontmatter. That check runs inside `npm run build`. It is not a separate CI script.
+
 ## Where the site lives
 
 GitHub Pages publishes `wiki/dist`, so the built site is the site root. The public URL does not include an extra `/wiki/` segment.

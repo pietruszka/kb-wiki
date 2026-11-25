@@ -1,0 +1,54 @@
+---
+import PageTypeBadge from '../components/PageTypeBadge.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { catalogCards, tagGroups } from '../lib/catalog';
+import { countNoun } from '../lib/format';
+import { sitePath } from '../lib/paths';
+import { loadSiteFiles } from '../lib/repo';
+
+const now = new Date();
+const { pages } = loadSiteFiles();
+const groups = tagGroups(catalogCards(pages, now, import.meta.env.BASE_URL));
+---
+
+<BaseLayout
+  title="Tags"
+  description="Tags used across the wiki, each with the pages that carry it."
+  current="tags"
+  testId="tags.page"
+>
+  <div class="directory">
+    <p class="meta"><span aria-hidden="true">// </span>Tags from page frontmatter</p>
+    <h1 class="display">Tags</h1>
+    <p class="lede">
+      {countNoun(groups.length, 'tag', 'tags')} across the wiki. A tag opens the catalog filtered to that tag.
+    </p>
+    {
+      groups.length === 0 ? (
+        <p class="catalog-empty">No tags yet.</p>
+      ) : (
+        <ul class="directory-list" data-testid="tags.list">
+          {groups.map((group) => (
+            <li>
+              <h2>
+                <a href={sitePath(`/?tag=${encodeURIComponent(group.tag)}`)} data-testid="tags.link">
+                  #{group.tag}
+                </a>
+                <span class="directory-count">{group.pages.length}</span>
+              </h2>
+              <ul class="directory-pages">
+                {group.pages.map((page) => (
+                  <li>
+                    <a href={page.href}>
+                      <PageTypeBadge type={page.type} /> {page.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</BaseLayout>

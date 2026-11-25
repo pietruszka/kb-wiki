@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { catalogCards, citedSources } from '../lib/catalog';
+import { countNoun, sourceHostname } from '../lib/format';
+import { loadSiteFiles } from '../lib/repo';
+
+const now = new Date();
+const { pages } = loadSiteFiles();
+const cards = catalogCards(pages, now, import.meta.env.BASE_URL);
+const sources = citedSources(pages, cards);
+---
+
+<BaseLayout
+  title="Sources"
+  description="Sources cited in page frontmatter, and the pages that cite them."
+  current="sources"
+  testId="sources.page"
+>
+  <div class="directory">
+    <p class="meta"><span aria-hidden="true">// </span>Sources cited on pages</p>
+    <h1 class="display">Sources</h1>
+    <p class="lede">
+      {countNoun(sources.length, 'source', 'sources')} cited in frontmatter. The same URL is listed once.
+    </p>
+    {
+      sources.length === 0 ? (
+        <p class="catalog-empty">No sources yet.</p>
+      ) : (
+        <ul class="directory-list" data-testid="sources.list">
+          {sources.map((source) => (
+            <li data-testid="sources.item">
+              <h2>
+                {source.url ? (
+                  <a href={source.url}>{source.title}</a>
+                ) : (
+                  source.title
+                )}
+                <span class="directory-count">{source.pages.length}</span>
+              </h2>
+              {source.url && <p class="source-url">{sourceHostname(source.url)}</p>}
+              <ul class="directory-pages">
+                {source.pages.map((page) => (
+                  <li>
+                    <a href={page.href}>{page.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</BaseLayout>

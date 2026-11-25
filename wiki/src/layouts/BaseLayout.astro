@@ -11,9 +11,10 @@ interface Props {
   current?: NavId;
   indexed?: boolean;
   testId?: string;
+  width?: 'column' | 'wide';
 }
 
-const { title, description, current, indexed = true, testId } = Astro.props;
+const { title, description, current, indexed = true, testId, width = 'column' } = Astro.props;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
 const boot = themeBootScript();
 ---
@@ -33,11 +34,16 @@ const boot = themeBootScript();
   </head>
   <body>
     <a class="skip" href="#content">Skip to content</a>
-    <div class="hud" data-testid="layout.backdrop" aria-hidden="true"></div>
+    <div
+      class:list={['hud', { 'hud-wide': width === 'wide' }]}
+      data-testid="layout.backdrop"
+      aria-hidden="true"
+    >
+    </div>
     <div class="page">
       <TopBar current={current} />
       <main id="content" class="main">
-        <article class="article" data-testid={testId}>
+        <article class:list={['article', { 'article-wide': width === 'wide' }]} data-testid={testId}>
           <slot />
         </article>
       </main>
