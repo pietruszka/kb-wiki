@@ -191,7 +191,7 @@
             under the project site.
           </p>
           <div class="actions">
-            <a href="./README.md">Repository notes</a>
+            <a href="./index.html#add-a-page">Add a page</a>
             <a href="./index.html#diagram">Sample diagram</a>
           </div>
         </section>
@@ -206,27 +206,24 @@
           <pre class="mermaid">
 flowchart TD
   home[index.html]
-  notes[README.md]
-  next[Another HTML page]
-  home --> notes
+  next[notes.html]
   home --> next
   click home "./index.html" "This landing page"
-  click notes "./README.md" "How to add a page"
-  click next "./index.html#add-a-page" "Where the next page goes"
+  click next "./index.html#add-a-page" "Add notes.html beside this file"
           </pre>
         </section>
 
         <section id="add-a-page">
           <h2>Add a page</h2>
           <p>
-            Drop another <code>.html</code> file beside <code>index.html</code> and link it
-            as <code>./your-page.html</code>. Link back with <code>./</code> or
-            <code>./index.html</code>.
+            Drop another <code>.html</code> file in this folder, beside
+            <code>index.html</code>, and link it as <code>./notes.html</code>. Link back
+            with <code>./</code> or <code>./index.html</code>.
           </p>
         </section>
       </main>
 
-      <footer>Static files in the repository root. Diagrams render in the browser.</footer>
+      <footer>Static HTML in this folder. Diagrams render in the browser.</footer>
     </div>
 
     <script type="module">
