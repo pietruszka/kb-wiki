@@ -1,0 +1,48 @@
+---
+import { getCollection, render } from 'astro:content';
+import WikiArticle from '../components/WikiArticle.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { backlinksBySlug, type WikiRecord } from '../lib/backlinks';
+import { SITE_BASE } from '../lib/site';
+import { wikiFileLabel } from '../lib/wikilinks';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('wiki');
+  const records: WikiRecord[] = entries.map((entry) => ({
+    slug: entry.id,
+    title: entry.data.title,
+    summary: entry.data.summary,
+    type: entry.data.type,
+    body: entry.body ?? '',
+    file: wikiFileLabel(entry.filePath ?? entry.id),
+  }));
+  const incoming = backlinksBySlug(records, SITE_BASE);
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      backlinks: incoming.get(entry.id) ?? [],
+    },
+  }));
+}
+
+const { entry, backlinks } = Astro.props;
+const { Content } = await render(entry);
+const { title, summary, type, tags, sources, updated, status } = entry.data;
+---
+
+<BaseLayout title={title} description={summary} testId="wiki.page">
+  <WikiArticle
+    slug={entry.id}
+    type={type}
+    title={title}
+    summary={summary}
+    tags={tags}
+    sources={sources}
+    updated={updated}
+    status={status}
+    backlinks={backlinks}
+  >
+    <Content />
+  </WikiArticle>
+</BaseLayout>

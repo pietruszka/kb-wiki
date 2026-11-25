@@ -1,7 +1,17 @@
 ---
+import { join } from 'node:path';
 import PageTypeBadge from '../components/PageTypeBadge.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { PAGE_TYPES, type PageType } from '../lib/page-types';
+import { sitePath } from '../lib/paths';
+import { loadWikiPages } from '../lib/wiki-catalog';
+
+// The prerender bundle does not keep this file's URL, so the collection
+// directory is resolved from the project root. `astro build` and `npm test`
+// both run with that root as the working directory.
+const pages = loadWikiPages(join(process.cwd(), 'src/content/wiki')).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title, 'en'),
+);
 
 const blurbs: Record<PageType, string> = {
   concept: 'An idea, compiled from many sources.',
@@ -49,6 +59,26 @@ const types = Object.keys(PAGE_TYPES) as PageType[];
       }
     </dl>
   </section>
-  <p>The catalog, graph, and search are not on this page yet. They will use this shell.</p>
+  <section aria-labelledby="pages-title">
+    <h2 id="pages-title">Pages</h2>
+    {
+      pages.length === 0 ? (
+        <p>No pages filed yet.</p>
+      ) : (
+        <ul class="page-list" data-testid="home.pages">
+          {pages.map((page) => (
+            <li>
+              <a href={sitePath(`${page.slug}/`)} data-testid="home.pages.link">
+                <PageTypeBadge type={page.data.type} />
+                <span>{page.data.title}</span>
+              </a>
+              <p>{page.data.summary}</p>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+  <p>Graph, search, and the log are not on this page yet.</p>
   <p class="colophon">Pages are written by an LLM from public sources and reviewed by me.</p>
 </BaseLayout>

@@ -1,0 +1,35 @@
+---
+type: comparison
+title: Retrieval versus a compiled wiki
+summary: Retrieval finds passages when a question arrives. A compiled wiki writes the answer down and updates the page when the sources change.
+tags:
+  - retrieval
+  - llm
+sources:
+  - title: Retrieval-augmented generation (Wikipedia)
+    url: https://en.wikipedia.org/wiki/Retrieval-augmented_generation
+updated: 2026-11-20
+status: draft
+---
+
+Both approaches start from source material. They disagree about when the writing happens.
+
+## Retrieval
+
+A retrieval system stores chunks. At question time it searches, hands the top chunks to a model, and the model writes an answer that is thrown away. The next question searches again. Nothing on the shelf improved.
+
+This fits when the corpus is large, the question is new, and you would not want a page for every possible wording. It is a poor fit when the same question comes back and the answer should have been corrected the first time it was wrong.
+
+## A compiled page
+
+A [[llm-wiki|compiled wiki]] writes the page before the question. The page has a title, a summary, and links. Other pages that point at it show up as [[backlink|backlinks]]. When a source changes, the page is revised. The cost is editing. The gain is an answer that stays still long enough to review.
+
+A page earns its place when all three are true:
+
+- The claim will be asked again.
+- A person can check it against a source.
+- A wrong sentence should be corrected once, not rediscovered.
+
+## What is still open
+
+This page is a draft because the boundary is not a rule yet. A wiki that compiles everything becomes a landfill. A retriever that never writes anything repeats the same mistake. The open question is which claims deserve a page. Until that is sharper, treat this comparison as a working note, not a decision.

@@ -25,6 +25,9 @@ test('home uses the shell, the headline, and every page type', async () => {
     expect(html).toContain(label);
   }
   expect(html).toContain('https://pietruszka.github.io/kb-wiki/');
+  expect(html).toContain('data-testid="home.pages"');
+  expect(html).toContain(`href="${sitePath('llm-wiki/')}"`);
+  expect(html).toContain('LLM wiki');
   const boot = html.match(/<script(?![^>]*type=)[^>]*>[\s\S]*?kb-wiki-theme[\s\S]*?<\/script>/);
   expect(boot?.[0]).toContain(THEME_STORAGE_KEY);
 });

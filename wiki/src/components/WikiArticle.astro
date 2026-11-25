@@ -1,0 +1,120 @@
+---
+import PageTypeBadge from './PageTypeBadge.astro';
+import { countNoun, formatWikiDate, sourceHostname } from '../lib/format';
+import { sitePath } from '../lib/paths';
+import type { PageType } from '../lib/page-types';
+import type { PageStatus, WikiSource } from '../lib/wiki-schema';
+import type { Backlink } from '../lib/backlinks';
+
+interface Props {
+  slug: string;
+  type: PageType;
+  title: string;
+  summary: string;
+  tags: string[];
+  sources: WikiSource[];
+  updated: Date;
+  status: PageStatus;
+  backlinks: Backlink[];
+}
+
+const { slug, type, title, summary, tags, sources, updated, status, backlinks } = Astro.props;
+const updatedIso = formatWikiDate(updated);
+---
+
+<div class="wiki" data-type={type} data-testid="wiki.entry">
+  <nav class="wiki-crumb" aria-label="Breadcrumb" data-testid="wiki.breadcrumb">
+    <a href={sitePath('/')}>Index</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{slug}</span>
+  </nav>
+  <div class="wiki-kicker">
+    <PageTypeBadge type={type} />
+    {
+      tags.length > 0 && (
+        <ul class="wiki-tags" data-testid="wiki.tags">
+          {tags.map((tag) => (
+            <li>
+              <span class="wiki-tag">#{tag}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+  <h1 class="wiki-title" data-testid="wiki.title">{title}</h1>
+  <p class="wiki-summary" data-testid="wiki.summary">{summary}</p>
+  <div class="wiki-meta" data-testid="wiki.meta">
+    <span class="wiki-status" data-status={status} data-testid="wiki.meta.status">{status}</span>
+    <span class="wiki-dot" aria-hidden="true">·</span>
+    <span data-testid="wiki.meta.updated">
+      Updated <time datetime={updatedIso}>{updatedIso}</time>
+    </span>
+    <span class="wiki-dot" aria-hidden="true">·</span>
+    <span data-testid="wiki.meta.sources">{countNoun(sources.length, 'source', 'sources')}</span>
+  </div>
+  <div class="wiki-body" data-testid="wiki.body">
+    <slot />
+  </div>
+  <section class="wiki-section" aria-labelledby="wiki-backlinks-title" data-testid="wiki.backlinks">
+    <div class="wiki-section-head">
+      <h2 id="wiki-backlinks-title">Backlinks</h2>
+      <p class="wiki-count" data-testid="wiki.backlinks.count">
+        {countNoun(backlinks.length, 'page', 'pages')}
+      </p>
+    </div>
+    {
+      backlinks.length === 0 ? (
+        <p class="wiki-empty" data-testid="wiki.backlinks.empty">
+          No pages link here yet.
+        </p>
+      ) : (
+        <ul class="backlink-list">
+          {backlinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class:list={['wikilink', `wikilink-${link.type}`]}
+                data-type={link.type}
+                data-testid="wiki.backlinks.link"
+              >
+                {link.title}
+              </a>
+              <p>{link.summary}</p>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+  <section class="wiki-section" aria-labelledby="wiki-sources-title" data-testid="wiki.sources">
+    <div class="wiki-section-head">
+      <h2 id="wiki-sources-title">Sources</h2>
+      <p class="wiki-count" data-testid="wiki.sources.count">
+        {countNoun(sources.length, 'source', 'sources')}
+      </p>
+    </div>
+    {
+      sources.length === 0 ? (
+        <p class="wiki-empty" data-testid="wiki.sources.empty">
+          No sources filed on this page.
+        </p>
+      ) : (
+        <ol class="source-list">
+          {sources.map((source) => (
+            <li>
+              {source.url ? (
+                <a href={source.url} rel="noreferrer" data-testid="wiki.sources.link">
+                  {source.title}
+                </a>
+              ) : (
+                source.title
+              )}
+              {source.url && <p class="source-host">{sourceHostname(source.url)}</p>}
+            </li>
+          ))}
+        </ol>
+      )
+    }
+  </section>
+</div>
