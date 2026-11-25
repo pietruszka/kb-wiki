@@ -39,6 +39,12 @@ export default function HomeSearch({ placeholder }: Props) {
           onChange={(event) => {
             const value = event.currentTarget.value;
             setText(value);
+            const params = new URLSearchParams(window.location.search);
+            if (value.trim()) params.set('q', value);
+            else params.delete('q');
+            const query = params.toString();
+            const next = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+            window.history.replaceState(null, '', next);
             document.dispatchEvent(new CustomEvent(FILTER_EVENT, { detail: { text: value } }));
           }}
         />

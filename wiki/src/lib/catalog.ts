@@ -131,7 +131,7 @@ export type TagGroup = {
 export function tagGroups(cards: CatalogCard[]): TagGroup[] {
   const groups = new Map<string, CatalogCard[]>();
   for (const card of cards) {
-    for (const tag of card.tags) {
+    for (const tag of new Set(card.tags)) {
       const list = groups.get(tag) ?? [];
       list.push(card);
       groups.set(tag, list);

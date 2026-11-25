@@ -96,3 +96,15 @@ test('home stats come from frontmatter', () => {
     ['Overview', 3],
   ]);
 });
+
+test('a repeated tag on one page counts that page once', () => {
+  const cards = catalogCards(
+    [
+      page({ slug: 'idea', type: 'concept', title: 'Idea', tags: ['notes', 'notes'] }),
+      page({ slug: 'tool', type: 'entity', title: 'Tool', tags: ['notes'] }),
+    ],
+    now,
+  );
+  const notes = tagGroups(cards).find((group) => group.tag === 'notes');
+  expect(notes?.pages.map((item) => item.slug)).toEqual(['idea', 'tool']);
+});

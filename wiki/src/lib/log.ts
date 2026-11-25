@@ -89,7 +89,9 @@ export function parseLog(text: string, file = 'log.md'): LogEntry[] {
   const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/);
   const headings: { index: number; line: number }[] = [];
   for (let index = 0; index < lines.length; index += 1) {
-    if (lines[index]?.startsWith('## ')) headings.push({ index, line: index + 1 });
+    // A level-2 heading is `##` plus a space, a tab, or the end of the line.
+    // `###` is not one. Anything else that looks like one fails below.
+    if (/^##(?:[ \t]|$)/.test(lines[index] ?? '')) headings.push({ index, line: index + 1 });
   }
 
   const entries: LogEntry[] = [];

@@ -63,6 +63,11 @@ test('malformed log entry fails', () => {
     ['## [2026-11-25] nope | Unknown\n\nBody.\n', 'unknown action "nope"'],
     ['## [2026-11-25] ingest | \n\nBody.\n', 'subject is empty'],
     ['## [2026-11-25] ingest | Empty body\n\n', 'empty body'],
+    ['##\t[2026-11-25] nope | Broken\n\nBody.\n', 'must look like'],
+    [
+      '## [2026-11-25] ingest | Real\n\nBody.\n\n##\t[2026-11-25] nope | Broken\n\nMore.\n',
+      'must look like',
+    ],
   ];
   for (const [text, message] of cases) {
     expect(() => parseLog(text, 'log.md'), text).toThrow(new RegExp(`log\\.md:\\d+: .*${message}`));
