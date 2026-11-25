@@ -1,32 +1,68 @@
-# Publish the static site in wiki/ to GitHub Pages.
+# Build the Astro site in wiki/ and publish wiki/dist to GitHub Pages.
 #
 # One-time setup (repository admin): Settings → Pages → Build and deployment
 # → Source: GitHub Actions.
 #
-# upload-pages-artifact path is wiki/, so that folder is the site root.
-# The live URL is https://pietruszka.github.io/kb-wiki/ and does not include
-# /wiki/. Publishing the repository root instead would serve the app at
-# https://pietruszka.github.io/kb-wiki/wiki/ and would also publish README.md.
+# The live URL is https://pietruszka.github.io/kb-wiki/. Astro `base` is
+# /kb-wiki, so the artifact root is the site root and the URL has no /wiki/
+# segment. Publishing the repository root would add that segment and would
+# also publish README.md, design/, and later root files.
 
 name: Deploy Pages
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 # Jobs below set their own permissions. Unspecified scopes are none.
 permissions:
   contents: read
 
-# One publish at a time. A newer run waits, and an in-progress deploy is not
-# cancelled.
+# One publish at a time on main. Pull request checks use their own group so
+# they are not queued behind a deploy.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: Typecheck and build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wiki/package-lock.json
+
+      - name: Install dependencies
+        working-directory: wiki
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: wiki
+        run: npm run typecheck
+
+      - name: Test
+        working-directory: wiki
+        run: npm test
+
+      - name: Build
+        working-directory: wiki
+        run: npm run build
+
   deploy:
+    needs: verify
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: Deploy
@@ -46,13 +82,28 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: wiki/package-lock.json
+
+      - name: Install dependencies
+        working-directory: wiki
+        run: npm ci
+
+      - name: Build
+        working-directory: wiki
+        run: npm run build
+
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: wiki
+          path: wiki/dist
 
       - name: Deploy to GitHub Pages
         id: deployment
