@@ -1,0 +1,54 @@
+---
+import PageTypeBadge from '../components/PageTypeBadge.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { PAGE_TYPES, type PageType } from '../lib/page-types';
+
+const blurbs: Record<PageType, string> = {
+  concept: 'An idea, compiled from many sources.',
+  comparison: 'One choice against another.',
+  entity: 'A person, tool, paper, or company.',
+  source: 'A summary of one immutable raw file.',
+};
+
+const types = Object.keys(PAGE_TYPES) as PageType[];
+---
+
+<BaseLayout
+  title="Notes compiled, not retrieved"
+  description="Raw sources go in. An LLM writes, links and lints the pages; I read them, ask questions and file the good answers back."
+  current="index"
+  testId="home.page"
+>
+  <p class="meta">
+    <span aria-hidden="true">// </span>Personal knowledge base, compiled by an LLM. Public.
+  </p>
+  <h1 class="display" data-testid="home.title">
+    Notes compiled,<br />
+    <span class="display-accent">not retrieved.</span>
+  </h1>
+  <p class="lede">
+    Raw sources go in. An LLM writes, links and lints the pages; I read them, ask questions and file
+    the good answers back.
+  </p>
+  <section aria-labelledby="page-types-title">
+    <h2 id="page-types-title">Page types</h2>
+    <p>
+      Colour marks concepts and comparisons. Entities and sources stay neutral, and the glyph tells
+      them apart.
+    </p>
+    <dl class="type-list">
+      {
+        types.map((type) => (
+          <div>
+            <dt>
+              <PageTypeBadge type={type} />
+            </dt>
+            <dd>{blurbs[type]}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+  <p>The catalog, graph, and search are not on this page yet. They will use this shell.</p>
+  <p class="colophon">Pages are written by an LLM from public sources and reviewed by me.</p>
+</BaseLayout>

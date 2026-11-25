@@ -1,0 +1,97 @@
+/*
+  Dark and light tokens from design/README.md and design/png/07-design-tokens.png.
+  Light values are repeated so a light system preference applies before JavaScript,
+  and when JavaScript is off. An explicit data-theme wins because it comes last.
+
+  #6B7385 (dark muted) and the faint swatches are below 4.5:1 on the page
+  background. They stay in the token set for non-text use. Readable secondary
+  text uses --text-2.
+*/
+
+:root {
+  color-scheme: dark;
+  --bg: #07080b;
+  --code-bg: #0f1014;
+  --panel: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --text: #e8eef4;
+  --body: #c9ced9;
+  --text-2: #8f9aab;
+  --muted: #6b7385;
+  --faint: #556678;
+  --link: #22d3ee;
+  --accent-ink: #083344;
+  --accent-tint: #06b6d4;
+  --violet: #a78bfa;
+  --violet-tint: #7c3aed;
+  --ok: #4ade74;
+  --warn: #f5c451;
+  --err: #f87171;
+  --grid: #ffffff09;
+  --scanline: #ffffff06;
+  --veil: color-mix(in srgb, var(--bg) 70%, transparent);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --column: 620px;
+  --grid-size: 56px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --radius-badge: 3px;
+  --radius-node: 6px;
+  --radius-panel: 8px;
+  --radius-chip: 14px;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f7fa;
+  --code-bg: #ffffff;
+  --panel: rgba(255, 255, 255, 0.8);
+  --border: rgba(11, 13, 18, 0.12);
+  --border-strong: rgba(11, 13, 18, 0.22);
+  --text: #0b0d12;
+  --body: #2a3040;
+  --text-2: #3a4256;
+  --muted: #555d70;
+  --faint: #7a8294;
+  --link: #0e7490;
+  --accent-ink: #083344;
+  --violet: #6d3fe0;
+  --ok: #047857;
+  --warn: #a15c07;
+  --err: #c0263c;
+  --grid: rgba(11, 13, 18, 0.05);
+  --scanline: rgba(11, 13, 18, 0.02);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --bg: #f5f7fa;
+    --code-bg: #ffffff;
+    --panel: rgba(255, 255, 255, 0.8);
+    --border: rgba(11, 13, 18, 0.12);
+    --border-strong: rgba(11, 13, 18, 0.22);
+    --text: #0b0d12;
+    --body: #2a3040;
+    --text-2: #3a4256;
+    --muted: #555d70;
+    --faint: #7a8294;
+    --link: #0e7490;
+    --accent-ink: #083344;
+    --violet: #6d3fe0;
+    --ok: #047857;
+    --warn: #a15c07;
+    --err: #c0263c;
+    --grid: rgba(11, 13, 18, 0.05);
+    --scanline: rgba(11, 13, 18, 0.02);
+  }
+}

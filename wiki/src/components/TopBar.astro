@@ -1,0 +1,59 @@
+---
+import ThemeToggle from './ThemeToggle';
+import { GITHUB_URL, NAV_ITEMS, type NavId } from '../lib/nav';
+import { sitePath } from '../lib/paths';
+
+interface Props {
+  current?: NavId;
+}
+
+const { current } = Astro.props;
+---
+
+<header class="topbar" data-testid="layout.topbar">
+  <a class="brand" href={sitePath('/')}>
+    <span class="mark" aria-hidden="true">kb</span>
+    <span class="brand-full">pietruszka <span class="brand-slash">/</span> wiki</span>
+    <span class="brand-short">wiki</span>
+  </a>
+  <details class="nav">
+    <summary class="nav-toggle" data-testid="layout.menu">Menu</summary>
+    <ul class="nav-list">
+      {
+        NAV_ITEMS.map((item) => (
+          <li>
+            <a
+              class="nav-link"
+              href={sitePath(item.path)}
+              aria-current={current === item.id ? 'page' : undefined}
+              data-testid={`layout.nav.${item.id}`}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </details>
+  <div class="topbar-end">
+    <ThemeToggle client:load />
+    <a
+      class="github"
+      href={GITHUB_URL}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="kb-wiki on GitHub (opens in a new tab)"
+    >
+      <span class="github-label" aria-hidden="true">GitHub</span>
+      <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+        <path
+          d="M3.2 8.8 8.8 3.2M5.2 3.2h3.6v3.6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </a>
+  </div>
+</header>

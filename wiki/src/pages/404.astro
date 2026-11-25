@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { sitePath } from '../lib/paths';
+---
+
+<BaseLayout
+  title="Not found"
+  description="This address is not a page in the wiki."
+  indexed={false}
+  testId="not-found.page"
+>
+  <h1 class="display">This page is not in the wiki.</h1>
+  <p class="lede">Nothing is published at this address.</p>
+  <p><a href={sitePath('/')}>Back to the index</a></p>
+</BaseLayout>
