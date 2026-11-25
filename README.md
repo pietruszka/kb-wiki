@@ -25,6 +25,12 @@ Other commands, from `wiki/`:
 
 `astro.config.ts` sets `site` to `https://pietruszka.github.io` and `base` to `/kb-wiki`. A custom domain later is a change to those two values: `site` becomes the domain, and `base` becomes `/`.
 
+## Pages
+
+Wiki pages live in `wiki/src/content/wiki` as Markdown or MDX. The build checks frontmatter: `type`, `title`, `summary`, `tags`, `sources`, `updated`, and `status` (`draft`, `stable`, or `stale`). Invalid frontmatter fails the build.
+
+Link another page with `[[slug]]` or `[[slug|label]]`. The build resolves that to a URL under `/kb-wiki`. A target that is not a page fails the build, and the error names the file and the target. Fenced code and inline code are not links. Backlinks are the other pages whose bodies link here.
+
 ## Where the site lives
 
 GitHub Pages publishes `wiki/dist`, so the built site is the site root. The public URL does not include an extra `/wiki/` segment.
