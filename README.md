@@ -1,31 +1,38 @@
 # kb-wiki
 
-A sample knowledge base. The hosted site is plain HTML in [`wiki/`](wiki/). The repository root keeps this README and anything else that should not be published. There is no build step.
+A personal knowledge base compiled by an LLM. The site is an Astro app in [`wiki/`](wiki/). The repository root keeps this README, the design mockups in [`design/`](design/), and, later, the raw sources and agent files that should not be published.
 
 Live site: https://pietruszka.github.io/kb-wiki/
 
+## Develop
+
+The app needs Node 22.
+
+```bash
+cd wiki
+npm install
+npm run dev
+```
+
+`npm run dev` serves the site at http://localhost:4321/kb-wiki/. The `/kb-wiki` base matches GitHub project pages, so links work the same locally and in production.
+
+Other commands, from `wiki/`:
+
+- `npm run typecheck` runs `astro check`
+- `npm test` runs the behaviour tests
+- `npm run build` writes the static site to `wiki/dist`
+- `npm run preview` serves that output
+
+`astro.config.ts` sets `site` to `https://pietruszka.github.io` and `base` to `/kb-wiki`. A custom domain later is a change to those two values: `site` becomes the domain, and `base` becomes `/`.
+
 ## Where the site lives
 
-`wiki/` is uploaded as the Pages artifact, so it becomes the site root. `wiki/index.html` is served at https://pietruszka.github.io/kb-wiki/, not at https://pietruszka.github.io/kb-wiki/wiki/.
+GitHub Pages publishes `wiki/dist`, so the built site is the site root. The public URL does not include an extra `/wiki/` segment.
 
-Publishing the repository root instead would put that extra `/wiki/` segment in the URL (`https://pietruszka.github.io/kb-wiki/wiki/`) and would also publish this README and any future root files. This repo publishes only `wiki/`.
+Publishing the repository root instead would put `/wiki/` in the URL (`https://pietruszka.github.io/kb-wiki/wiki/`) and would also publish this README, `design/`, and any future root files.
 
 ## Enable GitHub Pages
 
 In the repository: **Settings > Pages > Source: GitHub Actions**.
 
-[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) publishes `wiki/` on every push to `main`, and when the workflow is run manually. The first deploy can take a minute. After it finishes, the live URL above should show `wiki/index.html`.
-
-The workflow uploads the folder as a Pages artifact. GitHub does not run Jekyll on that artifact, so `wiki/` does not need a `.nojekyll` file.
-
-## Add a page
-
-Drop another `.html` file in `wiki/` next to `index.html` and link it with a relative URL, for example `./notes.html`. From that page, link back with `./` or `./index.html`.
-
-Relative links keep the site under `https://pietruszka.github.io/kb-wiki/`. A link that starts with `/` leaves the project site and requests `https://pietruszka.github.io/` instead.
-
-`wiki/index.html` loads one Mermaid diagram from the jsDelivr ESM build (`mermaid@12.3.0`). Copy a `pre` element with class `mermaid` and the script at the bottom of that page. The script draws every `.mermaid` block and, when an element with id `diagram-status` is present, reports success or a failed download. The diagram text stays in the HTML, so there is still nothing to compile.
-
-## If the site grows
-
-Plain HTML is enough while this is a handful of pages. If it needs shared layout, navigation, or Markdown, build it with Astro and change the workflow to upload the build output instead of the `wiki/` folder. The Pages source stays **GitHub Actions**.
+[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) typechecks, tests, and builds on pull requests and on `main`. A push to `main`, or a manual run, also deploys `wiki/dist`. The first deploy can take a minute.

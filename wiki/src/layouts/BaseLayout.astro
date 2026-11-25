@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+import TopBar from '../components/TopBar.astro';
+import type { NavId } from '../lib/nav';
+import { sitePath } from '../lib/paths';
+import { themeBootScript } from '../lib/theme';
+
+interface Props {
+  title: string;
+  description: string;
+  current?: NavId;
+  indexed?: boolean;
+  testId?: string;
+}
+
+const { title, description, current, indexed = true, testId } = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
+const boot = themeBootScript();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07080B" />
+    <script is:inline set:html={boot}></script>
+    <title>{title} · kb-wiki</title>
+    <meta name="description" content={description} />
+    {indexed ? null : <meta name="robots" content="noindex" />}
+    {canonical && indexed ? <link rel="canonical" href={canonical.href} /> : null}
+    <link rel="icon" href={sitePath('favicon.svg')} />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <div class="hud" data-testid="layout.backdrop" aria-hidden="true"></div>
+    <div class="page">
+      <TopBar current={current} />
+      <main id="content" class="main">
+        <article class="article" data-testid={testId}>
+          <slot />
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+---
+import { PAGE_TYPES, isPageType } from '../lib/page-types';
+
+interface Props {
+  type: string;
+}
+
+const { type } = Astro.props;
+
+if (!isPageType(type)) {
+  throw new Error(`Unknown page type: ${type}`);
+}
+
+const pageType = PAGE_TYPES[type];
+---
+
+<span
+  class="page-type"
+  data-type={type}
+  data-glyph={pageType.glyph}
+  data-outline={pageType.outline}
+  data-testid="page-type.badge"
+>
+  <svg
+    class="page-type-glyph"
+    viewBox="0 0 12 12"
+    aria-hidden="true"
+    data-testid="page-type.badge.glyph"
+    fill="currentColor"
+  >
+    {
+      type === 'concept' && <path d="M6 0.75 11.1 6 6 11.25 0.9 6Z" />
+    }
+    {type === 'entity' && <circle cx="6" cy="6" r="3.1" />}
+    {
+      type === 'comparison' && (
+        <g
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M0.8 3.2h7.6" />
+          <path d="M6.4 1.2 9.2 3.2 6.4 5.2" />
+          <path d="M11.2 8.8H3.6" />
+          <path d="M5.6 6.8 2.8 8.8 5.6 10.8" />
+        </g>
+      )
+    }
+    {
+      type === 'source' && (
+        <g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round">
+          <rect x="1.3" y="1.3" width="9.4" height="9.4" />
+          <path d="M2.4 4.4h7.2M2.4 6.5h7.2M2.4 8.6h7.2" />
+        </g>
+      )
+    }
+  </svg>
+  <span class="page-type-label">{pageType.label}</span>
+</span>
