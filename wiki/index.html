@@ -227,11 +227,18 @@ flowchart TD
     </div>
 
     <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@12.3.0/dist/mermaid.esm.min.mjs";
-
       const status = document.getElementById("diagram-status");
 
+      function setStatus(state, text) {
+        if (!status) return;
+        status.dataset.state = state;
+        status.textContent = text;
+      }
+
       try {
+        const { default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@12.3.0/dist/mermaid.esm.min.mjs"
+        );
         mermaid.initialize({
           startOnLoad: false,
           securityLevel: "strict",
@@ -253,15 +260,13 @@ flowchart TD
           flowchart: { htmlLabels: true, curve: "basis", padding: 14 },
         });
         await mermaid.run({ querySelector: ".mermaid" });
-        const rendered = document.querySelector("#diagram svg");
+        const rendered = document.querySelector(".mermaid svg");
         if (!rendered) {
           throw new Error("Mermaid did not produce an SVG");
         }
-        status.dataset.state = "ready";
-        status.textContent = "Diagram ready";
+        setStatus("ready", "Diagram ready");
       } catch (error) {
-        status.dataset.state = "error";
-        status.textContent = "Diagram failed to render";
+        setStatus("error", "Diagram failed to render");
         console.error(error);
       }
     </script>

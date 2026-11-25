@@ -24,7 +24,7 @@ Drop another `.html` file in `wiki/` next to `index.html` and link it with a rel
 
 Relative links keep the site under `https://pietruszka.github.io/kb-wiki/`. A link that starts with `/` leaves the project site and requests `https://pietruszka.github.io/` instead.
 
-`wiki/index.html` loads one Mermaid diagram from the jsDelivr ESM build (`mermaid@12.3.0`). Copy that script into another page when a diagram is useful. The diagram text stays in the HTML, so there is still nothing to compile.
+`wiki/index.html` loads one Mermaid diagram from the jsDelivr ESM build (`mermaid@12.3.0`). Copy a `pre` element with class `mermaid` and the script at the bottom of that page. The script draws every `.mermaid` block and, when an element with id `diagram-status` is present, reports success or a failed download. The diagram text stays in the HTML, so there is still nothing to compile.
 
 ## If the site grows
 
