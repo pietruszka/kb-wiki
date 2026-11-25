@@ -1,0 +1,59 @@
+# Publish the static site in wiki/ to GitHub Pages.
+#
+# One-time setup (repository admin): Settings → Pages → Build and deployment
+# → Source: GitHub Actions.
+#
+# upload-pages-artifact path is wiki/, so that folder is the site root.
+# The live URL is https://pietruszka.github.io/kb-wiki/ and does not include
+# /wiki/. Publishing the repository root instead would serve the app at
+# https://pietruszka.github.io/kb-wiki/wiki/ and would also publish README.md.
+
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Jobs below set their own permissions. Unspecified scopes are none.
+permissions:
+  contents: read
+
+# One publish at a time. A newer run waits, and an in-progress deploy is not
+# cancelled.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: Deploy
+    permissions:
+      contents: read
+      # upload-pages-artifact uses actions/upload-artifact. With explicit
+      # permissions, artifact upload needs actions: write.
+      actions: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: wiki
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

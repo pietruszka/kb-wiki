@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KB wiki</title>
+    <meta
+      name="description"
+      content="A sample knowledge base published as static HTML with GitHub Pages."
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #1c1915;
+        --muted: #5e574e;
+        --paper: #f4efe6;
+        --card: #fffdf8;
+        --line: #e3d9c8;
+        --accent: #0f6e56;
+        --accent-soft: #e5f3ee;
+        --shadow: 0 1px 0 rgba(28, 25, 21, 0.04);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--paper);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse 80% 40% at 0% -10%, rgba(15, 110, 86, 0.08), transparent 50%),
+          var(--paper);
+        font-family: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+        font-size: 1.125rem;
+        line-height: 1.55;
+      }
+
+      a {
+        color: var(--accent);
+        text-underline-offset: 0.18em;
+      }
+
+      a:hover {
+        color: #0a4f3e;
+      }
+
+      .wrap {
+        width: min(42rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 3.5rem 0 4rem;
+      }
+
+      header {
+        margin-bottom: 2.5rem;
+      }
+
+      .mark {
+        margin: 0 0 1.25rem;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: 0.75rem;
+        font-weight: 650;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(3rem, 8vw, 4.5rem);
+        font-weight: 560;
+        letter-spacing: -0.035em;
+        line-height: 0.92;
+      }
+
+      .lede {
+        max-width: 34rem;
+        margin: 1.25rem 0 0;
+        color: var(--muted);
+        font-size: 1.25rem;
+      }
+
+      section {
+        margin-top: 2rem;
+        padding: 1.35rem 1.35rem 1.5rem;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+      }
+
+      h2 {
+        margin: 0 0 0.65rem;
+        font-size: 1.35rem;
+        font-weight: 560;
+        letter-spacing: -0.02em;
+      }
+
+      p {
+        margin: 0.75rem 0 0;
+      }
+
+      section > p:first-of-type {
+        margin-top: 0;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-top: 1.15rem;
+      }
+
+      .actions a {
+        display: inline-block;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: 0.92rem;
+        text-decoration: none;
+      }
+
+      .actions a:hover {
+        background: #d5ebe3;
+      }
+
+      .diagram-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: baseline;
+      }
+
+      .status {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: 0.78rem;
+        letter-spacing: 0.02em;
+        color: var(--muted);
+      }
+
+      .status[data-state="ready"] {
+        color: var(--accent);
+      }
+
+      .status[data-state="error"] {
+        color: #8a2e24;
+      }
+
+      .mermaid {
+        margin: 1rem 0 0;
+        overflow-x: auto;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+
+      footer {
+        margin-top: 2rem;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      code {
+        font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+        font-size: 0.86em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <p class="mark">Knowledge base</p>
+        <h1>KB wiki</h1>
+        <p class="lede">
+          A sample site of plain HTML pages, published from this repository by GitHub Pages.
+          No build step.
+        </p>
+      </header>
+
+      <main>
+        <section>
+          <h2>Start here</h2>
+          <p>
+            Notes live next to this file. Open one with a relative link so the address stays
+            under the project site.
+          </p>
+          <div class="actions">
+            <a href="./index.html#add-a-page">Add a page</a>
+            <a href="./index.html#diagram">Sample diagram</a>
+          </div>
+        </section>
+
+        <section id="diagram" aria-labelledby="diagram-title">
+          <div class="diagram-head">
+            <h2 id="diagram-title">How a page connects</h2>
+            <p id="diagram-status" class="status" data-state="loading" role="status">
+              Diagram loading
+            </p>
+          </div>
+          <pre class="mermaid">
+flowchart TD
+  home[index.html]
+  next[notes.html]
+  home --> next
+  click home "./index.html" "This landing page"
+  click next "./index.html#add-a-page" "Add notes.html beside this file"
+          </pre>
+        </section>
+
+        <section id="add-a-page">
+          <h2>Add a page</h2>
+          <p>
+            Drop another <code>.html</code> file in this folder, beside
+            <code>index.html</code>, and link it as <code>./notes.html</code>. Link back
+            with <code>./</code> or <code>./index.html</code>.
+          </p>
+        </section>
+      </main>
+
+      <footer>Static HTML in this folder. Diagrams render in the browser.</footer>
+    </div>
+
+    <script type="module">
+      const status = document.getElementById("diagram-status");
+
+      function setStatus(state, text) {
+        if (!status) return;
+        status.dataset.state = state;
+        status.textContent = text;
+      }
+
+      try {
+        const { default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@12.3.0/dist/mermaid.esm.min.mjs"
+        );
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: "strict",
+          layout: "dagre",
+          theme: "base",
+          themeVariables: {
+            fontFamily: "ui-sans-serif, system-ui, sans-serif",
+            primaryColor: "#e5f3ee",
+            primaryTextColor: "#1c1915",
+            primaryBorderColor: "#0f6e56",
+            lineColor: "#8a8175",
+            secondaryColor: "#f4efe6",
+            tertiaryColor: "#fffdf8",
+            background: "#fffdf8",
+            clusterBkg: "#fffdf8",
+            titleColor: "#1c1915",
+            nodeTextColor: "#1c1915",
+          },
+          flowchart: { htmlLabels: true, curve: "basis", padding: 14 },
+        });
+        await mermaid.run({ querySelector: ".mermaid" });
+        const rendered = document.querySelector(".mermaid svg");
+        if (!rendered) {
+          throw new Error("Mermaid did not produce an SVG");
+        }
+        setStatus("ready", "Diagram ready");
+      } catch (error) {
+        setStatus("error", "Diagram failed to render");
+        console.error(error);
+      }
+    </script>
+  </body>
+</html>
