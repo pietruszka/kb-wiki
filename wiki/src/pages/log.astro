@@ -1,0 +1,70 @@
+---
+import LogBrowser from '../components/LogBrowser';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { activityWindow, countActions, entryInLastDays, isoDateUtc, LOG_ACTIONS } from '../lib/log';
+import { loadSiteFiles } from '../lib/repo';
+
+const now = new Date();
+const today = isoDateUtc(now);
+const { log, logText } = loadSiteFiles();
+const days = activityWindow(log, today, 30);
+const recent = log.filter((entry) => entryInLastDays(entry.date, today, 30));
+const counts = countActions(recent);
+const maxDay = Math.max(1, ...days.map((day) => day.count));
+const total = recent.length;
+const chartLabel = `Log entries over the 30 days ending ${today}: ${total} ${total === 1 ? 'entry' : 'entries'}`;
+---
+
+<BaseLayout
+  title="Log"
+  description="Append-only log of ingests, queries, lint passes, and page updates."
+  current="log"
+  width="wide"
+  testId="log.page"
+>
+  <div class="log">
+    <div class="log-hero">
+      <div>
+        <p class="meta"><span aria-hidden="true">// </span>log.md · append-only</p>
+        <h1 class="display" data-testid="log.title">
+          Every ingest, query<br />
+          and lint, <span class="display-accent">in order.</span>
+        </h1>
+        <p class="lede">
+          An agent appends one entry when it changes the wiki. Older entries stay as they were
+          written, so the file is the changelog.
+        </p>
+      </div>
+      <section class="activity" aria-labelledby="activity-title" data-testid="log.activity">
+        <h2 id="activity-title" class="status-head">Activity · last 30 days</h2>
+        <div class="activity-grid">
+          {
+            LOG_ACTIONS.map((action) => (
+              <div data-testid={`log.activity.${action}`} data-count={counts[action]}>
+                <p class="stat-value">{counts[action]}</p>
+                <p class="stat-label">{action}</p>
+              </div>
+            ))
+          }
+        </div>
+        {
+          total === 0 ? (
+            <p class="activity-empty">Nothing logged in the last 30 days. The timeline below has the older entries.</p>
+          ) : null
+        }
+        <div class="bars bars-log" role="img" aria-label={chartLabel} data-testid="log.activity.chart">
+          {
+            days.map((day) => (
+              <span
+                class="bar"
+                data-empty={day.count === 0 ? '' : undefined}
+                style={`height: ${day.count === 0 ? 8 : Math.round((day.count / maxDay) * 100)}%`}
+              />
+            ))
+          }
+        </div>
+      </section>
+    </div>
+    <LogBrowser client:load entries={log} today={today} raw={logText} />
+  </div>
+</BaseLayout>

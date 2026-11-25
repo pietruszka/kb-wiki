@@ -5,6 +5,8 @@
 @import '@fontsource/jetbrains-mono/latin-500.css';
 @import './tokens.css';
 @import './wiki.css';
+@import './home.css';
+@import './log.css';
 
 *,
 *::before,
@@ -511,6 +513,25 @@ body {
     grid-template-columns: 1fr;
     gap: 6px;
     align-items: start;
+  }
+}
+
+.hud-wide {
+  background-image:
+    repeating-linear-gradient(to bottom, var(--scanline) 0 1px, transparent 1px 4px),
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: auto, var(--grid-size) var(--grid-size), var(--grid-size) var(--grid-size);
+}
+
+.article-wide {
+  width: min(1180px, calc(100% - 32px));
+}
+
+@media (min-width: 768px) {
+  .article-wide {
+    width: min(1180px, calc(100% - 64px));
+    padding-block: 36px 80px;
   }
 }
 

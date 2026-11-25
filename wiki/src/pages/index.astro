@@ -1,84 +1,258 @@
 ---
-import { join } from 'node:path';
+import CatalogBrowser from '../components/CatalogBrowser';
+import HomeSearch from '../components/HomeSearch';
 import PageTypeBadge from '../components/PageTypeBadge.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { PAGE_TYPES, type PageType } from '../lib/page-types';
+import { recentCards, tagGroups, tickerEntries } from '../lib/catalog';
+import { countNoun } from '../lib/format';
+import { GITHUB_URL } from '../lib/nav';
+import { isoDateUtc, logEntryId, weeklyCounts } from '../lib/log';
 import { sitePath } from '../lib/paths';
-import { loadWikiPages } from '../lib/wiki-catalog';
+import { loadHome } from '../lib/repo';
 
-// The prerender bundle does not keep this file's URL, so the collection
-// directory is resolved from the project root. `astro build` and `npm test`
-// both run with that root as the working directory.
-const pages = loadWikiPages(join(process.cwd(), 'src/content/wiki')).sort((a, b) =>
-  a.data.title.localeCompare(b.data.title, 'en'),
-);
+const now = new Date();
+const today = isoDateUtc(now);
+const { cards, stats, log } = loadHome(now, import.meta.env.BASE_URL);
+const recent = recentCards(cards);
+const ticker = tickerEntries(log);
+const latest = log[0];
+const weeks = weeklyCounts(log, today);
+const weekMax = Math.max(1, ...weeks);
+const weekLabel = `Log entries by week, oldest first: ${weeks.join(', ')}`;
+const tags = tagGroups(cards);
+const placeholder = `Filter ${stats.pages} pages, ${stats.sources} sources, ${stats.tags.length} tags`;
 
-const blurbs: Record<PageType, string> = {
-  concept: 'An idea, compiled from many sources.',
-  comparison: 'One choice against another.',
-  entity: 'A person, tool, paper, or company.',
-  source: 'A summary of one immutable raw file.',
-};
-
-const types = Object.keys(PAGE_TYPES) as PageType[];
+const steps = [
+  {
+    id: 'ingest',
+    index: '01',
+    name: 'Ingest',
+    text: 'Add a page under the wiki collection and append an entry to log.md. The entry names what changed.',
+    command: 'append log.md',
+  },
+  {
+    id: 'compile',
+    index: '02',
+    name: 'Compile',
+    text: 'Astro builds the site, resolves wikilinks, and collects backlinks. index.md has to list every page.',
+    command: 'npm run build',
+  },
+  {
+    id: 'query',
+    index: '03',
+    name: 'Query',
+    text: 'A question worth keeping is filed back as a page, so the next session starts from the wiki.',
+    command: 'file the answer as a page',
+  },
+  {
+    id: 'lint',
+    index: '04',
+    name: 'Lint',
+    text: 'The build fails on a broken link, bad frontmatter, a malformed log entry, or an index that has drifted.',
+    command: 'npm test',
+  },
+];
 ---
 
 <BaseLayout
   title="Notes compiled, not retrieved"
   description="Raw sources go in. An LLM writes, links and lints the pages; I read them, ask questions and file the good answers back."
   current="index"
+  width="wide"
   testId="home.page"
 >
-  <p class="meta">
-    <span aria-hidden="true">// </span>Personal knowledge base, compiled by an LLM. Public.
-  </p>
-  <h1 class="display" data-testid="home.title">
-    Notes compiled,<br />
-    <span class="display-accent">not retrieved.</span>
-  </h1>
-  <p class="lede">
-    Raw sources go in. An LLM writes, links and lints the pages; I read them, ask questions and file
-    the good answers back.
-  </p>
-  <section aria-labelledby="page-types-title">
-    <h2 id="page-types-title">Page types</h2>
-    <p>
-      Colour marks concepts and comparisons. Entities and sources stay neutral, and the glyph tells
-      them apart.
-    </p>
-    <dl class="type-list">
-      {
-        types.map((type) => (
-          <div>
-            <dt>
-              <PageTypeBadge type={type} />
-            </dt>
-            <dd>{blurbs[type]}</dd>
+  <div class="home">
+    <div class="hero">
+      <div>
+        <p class="meta">
+          <span aria-hidden="true">// </span>Personal knowledge base, compiled by an LLM. Public.
+        </p>
+        <h1 class="display" data-testid="home.title">
+          Notes compiled,<br />
+          <span class="display-accent">not retrieved.</span>
+        </h1>
+        <p class="lede">
+          Raw sources go in. An LLM writes, links and lints the pages; I read them, ask questions and
+          file the good answers back.
+        </p>
+        <HomeSearch client:load placeholder={placeholder} />
+        {
+          tags.length > 0 && (
+            <p class="try-row">
+              <span class="try-label">Try</span>
+              {tags.slice(0, 4).map((group) => (
+                <a href={sitePath(`/?tag=${encodeURIComponent(group.tag)}`)} data-testid="home.try">
+                  {group.tag}
+                </a>
+              ))}
+            </p>
+          )
+        }
+      </div>
+      <section class="status-panel" aria-labelledby="status-title" data-testid="home.status">
+        <div class="status-head">
+          <h2 id="status-title">Sys.status · kb-wiki</h2>
+          <strong>Checked <time datetime={today}>{today}</time></strong>
+        </div>
+        <div class="status-grid">
+          <div data-testid="home.status.pages" data-count={stats.pages}>
+            <p class="stat-value">{stats.pages}</p>
+            <p class="stat-label">Pages</p>
           </div>
-        ))
+          <div data-testid="home.status.sources" data-count={stats.sources}>
+            <p class="stat-value">{stats.sources}</p>
+            <p class="stat-label">Sources</p>
+          </div>
+          <div data-testid="home.status.backlinks" data-count={stats.backlinks}>
+            <p class="stat-value">{stats.backlinks}</p>
+            <p class="stat-label">Backlinks</p>
+          </div>
+          <div data-testid="home.status.tags" data-count={stats.tags.length}>
+            <p class="stat-value">{stats.tags.length}</p>
+            <p class="stat-label">Tags</p>
+          </div>
+          <div data-testid="home.status.orphans" data-count={stats.orphans}>
+            <p class="stat-value">{stats.orphans}</p>
+            <p class="stat-label">Orphans</p>
+          </div>
+          <div data-testid="home.status.drafts" data-count={stats.drafts}>
+            <p class="stat-value">{stats.drafts}</p>
+            <p class="stat-label">Drafts</p>
+          </div>
+        </div>
+        <div class="status-foot">
+          <div class="status-latest" data-testid="home.status.latest">
+            {
+              latest ? (
+                <>
+                  <a href={`${sitePath('/log')}#${logEntryId(latest)}`}>
+                    {latest.date} {latest.action}
+                  </a>
+                  <p class="status-subject">{latest.subject}</p>
+                </>
+              ) : (
+                <p class="status-subject">No log entries yet.</p>
+              )
+            }
+          </div>
+          <div>
+            <p class="status-weeks-label">Entries / week</p>
+            <div class="bars" role="img" aria-label={weekLabel} data-testid="home.status.weeks">
+              {
+                weeks.map((count) => (
+                  <span
+                    class="bar"
+                    data-empty={count === 0 ? '' : undefined}
+                    style={`height: ${count === 0 ? 8 : Math.round((count / weekMax) * 100)}%`}
+                  />
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="ticker" aria-label="Recent log" data-testid="home.ticker">
+      {
+        ticker.length === 0 ? (
+          <p class="catalog-empty">No log entries yet.</p>
+        ) : (
+          <ul class="ticker-list">
+            {ticker.map((entry) => (
+              <li>
+                <a href={`${sitePath('/log')}#${logEntryId(entry)}`}>
+                  <span class="ticker-date">{entry.date}</span>
+                  <span class="action-pill" data-action={entry.action}>
+                    {entry.action}
+                  </span>
+                  <span>{entry.subject}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
       }
-    </dl>
-  </section>
-  <section aria-labelledby="pages-title">
-    <h2 id="pages-title">Pages</h2>
-    {
-      pages.length === 0 ? (
-        <p>No pages filed yet.</p>
-      ) : (
-        <ul class="page-list" data-testid="home.pages">
-          {pages.map((page) => (
-            <li>
-              <a href={sitePath(`${page.slug}/`)} data-testid="home.pages.link">
-                <PageTypeBadge type={page.data.type} />
-                <span>{page.data.title}</span>
-              </a>
-              <p>{page.data.summary}</p>
+    </section>
+
+    <section aria-labelledby="recent-title" data-testid="home.recent">
+      <div class="section-head">
+        <h2 id="recent-title">Recently compiled</h2>
+        <p class="section-note">Newest first · {countNoun(cards.length, 'page', 'pages')}</p>
+        <a href={sitePath('/log')}>Open log</a>
+      </div>
+      {
+        recent.length === 0 ? (
+          <p class="catalog-empty">No pages filed yet.</p>
+        ) : (
+          <div class="recent-grid">
+            {recent.map((page) => (
+              <article class="recent-card" data-type={page.type} data-testid="home.recent.card">
+                <div class="card-kicker">
+                  <PageTypeBadge type={page.type} />
+                  <time class="card-age" datetime={page.updated}>
+                    {page.age}
+                  </time>
+                </div>
+                <h3>
+                  <a href={page.href}>{page.title}</a>
+                </h3>
+                <p class="card-summary">{page.summary}</p>
+                <p class="card-meta">
+                  {countNoun(page.sourceCount, 'source', 'sources')} · {countNoun(page.backlinks, 'backlink', 'backlinks')} ·{' '}
+                  <span data-status={page.status}>{page.status}</span>
+                </p>
+              </article>
+            ))}
+          </div>
+        )
+      }
+    </section>
+
+    <section aria-labelledby="catalog-title">
+      <div class="section-head">
+        <h2 id="catalog-title">Catalog</h2>
+        <p class="section-note">
+          index.md · {countNoun(stats.pages, 'page', 'pages')} in {Object.values(stats.byType).filter((count) => count > 0).length} types
+        </p>
+        <a href={`${GITHUB_URL}/blob/main/index.md`}>Open index.md</a>
+      </div>
+      <noscript>
+        <p class="catalog-empty">Filtering needs JavaScript. Every page is listed below.</p>
+      </noscript>
+      <CatalogBrowser
+        client:load
+        pages={cards}
+        tags={stats.tags}
+        counts={stats.byType}
+      />
+    </section>
+
+    <section aria-labelledby="pipeline-title" data-testid="home.pipeline">
+      <div class="section-head">
+        <h2 id="pipeline-title">How this wiki is built</h2>
+        <p class="section-note">Compile the page once. Revise it when a source changes.</p>
+      </div>
+      <ol class="pipeline">
+        {
+          steps.map((step) => (
+            <li class="step" data-step={step.id}>
+              <span class="step-index">{step.index}</span>
+              <h3 class="step-name">{step.name}</h3>
+              <p>{step.text}</p>
+              <pre class="step-cmd"><code>{step.command}</code></pre>
             </li>
-          ))}
-        </ul>
-      )
-    }
-  </section>
-  <p>Graph, search, and the log are not on this page yet.</p>
-  <p class="colophon">Pages are written by an LLM from public sources and reviewed by me.</p>
+          ))
+        }
+      </ol>
+    </section>
+
+    <footer class="home-foot">
+      <p>Astro · React islands · MDX · static on GitHub Pages</p>
+      <p>
+        <a href="https://pietruszka.github.io/kb-wiki/">pietruszka.github.io/kb-wiki</a>
+      </p>
+      <p class="home-colophon">Pages are written by an LLM from public sources and reviewed by me.</p>
+    </footer>
+  </div>
 </BaseLayout>
