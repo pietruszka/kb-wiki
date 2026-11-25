@@ -7,6 +7,14 @@
 # /kb-wiki, so the artifact root is the site root and the URL has no /wiki/
 # segment. Publishing the repository root would add that segment and would
 # also publish README.md, design/, and later root files.
+#
+# `verify` typechecks, tests, and builds on pull requests and pushes. It
+# does not upload. On a push to main or a manual run, `build` (after
+# verify) produces one Pages artifact and `deploy` publishes it. Those are
+# separate jobs: deploy-pages only sees artifacts from completed jobs, so
+# an upload in the same job is reported as "Found 0 artifact(s)". A re-run
+# of that combined job adds another artifact named github-pages. Upload
+# once, in `build`.
 
 name: Deploy Pages
 
@@ -16,7 +24,8 @@ on:
   pull_request:
   workflow_dispatch:
 
-# Jobs below set their own permissions. Unspecified scopes are none.
+# `verify` inherits contents: read. Jobs that publish set their own
+# permissions. Unspecified scopes are none.
 permissions:
   contents: read
 
@@ -38,7 +47,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -60,22 +69,20 @@ jobs:
         working-directory: wiki
         run: npm run build
 
-  deploy:
+  build:
     needs: verify
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    name: Deploy
+    name: Build Pages artifact
     permissions:
       contents: read
       # upload-pages-artifact uses actions/upload-artifact. With explicit
       # permissions, artifact upload needs actions: write.
       actions: write
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      # configure-pages reads the Pages site (repos.getPages). It does not
+      # enable the site.
+      pages: read
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -83,7 +90,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -105,6 +112,18 @@ jobs:
         with:
           path: wiki/dist
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: Deploy
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
