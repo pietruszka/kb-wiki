@@ -1,0 +1,17 @@
+---
+import KnowledgeGraph from '../components/KnowledgeGraph';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { loadGraphView } from '../lib/graph-document';
+
+const { graph, summaries } = loadGraphView();
+---
+
+<BaseLayout
+  title="Graph"
+  description="Every page and the wikilinks between them. Positions are computed when the site is built."
+  current="graph"
+  width="full"
+  testId="graph.page"
+>
+  <KnowledgeGraph client:load graph={graph} summaries={summaries} />
+</BaseLayout>

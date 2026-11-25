@@ -3,8 +3,9 @@ import { getCollection, render } from 'astro:content';
 import WikiArticle from '../components/WikiArticle.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { backlinksBySlug, type WikiRecord } from '../lib/backlinks';
+import { buildGraph, linkedNodes } from '../lib/graph';
 import { SITE_BASE } from '../lib/site';
-import { wikiFileLabel } from '../lib/wikilinks';
+import { wikiFileLabel, wikiPageHref } from '../lib/wikilinks';
 
 export async function getStaticPaths() {
   const entries = await getCollection('wiki');
@@ -17,16 +18,33 @@ export async function getStaticPaths() {
     file: wikiFileLabel(entry.filePath ?? entry.id),
   }));
   const incoming = backlinksBySlug(records, SITE_BASE);
+  const graph = buildGraph(
+    entries.map((entry) => ({
+      slug: entry.id,
+      title: entry.data.title,
+      type: entry.data.type,
+      status: entry.data.status,
+      tags: entry.data.tags,
+      body: entry.body ?? '',
+      file: wikiFileLabel(entry.filePath ?? entry.id),
+    })),
+  );
   return entries.map((entry) => ({
     params: { slug: entry.id },
     props: {
       entry,
       backlinks: incoming.get(entry.id) ?? [],
+      neighbours: linkedNodes(graph, entry.id).map((node) => ({
+        slug: node.slug,
+        title: node.title,
+        type: node.type,
+        href: wikiPageHref(node.slug, SITE_BASE),
+      })),
     },
   }));
 }
 
-const { entry, backlinks } = Astro.props;
+const { entry, backlinks, neighbours } = Astro.props;
 const { Content } = await render(entry);
 const { title, summary, type, tags, sources, updated, status } = entry.data;
 ---
@@ -42,6 +60,7 @@ const { title, summary, type, tags, sources, updated, status } = entry.data;
     updated={updated}
     status={status}
     backlinks={backlinks}
+    neighbours={neighbours}
   >
     <Content />
   </WikiArticle>
