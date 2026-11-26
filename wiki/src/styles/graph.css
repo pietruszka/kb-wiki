@@ -1,4 +1,36 @@
-/* Graph page. The map is the desktop view. Under 768 px it is replaced by the list. */
+/* Graph page. The map is the desktop view. Under 768 px it is replaced by the list.
+   Glow colours are the frame 03 / 10 / local-graph stops. Light overrides keep
+   the same washes and use the readable accent for fills and hot edges. */
+
+:root {
+  --glow-cyan: #3df4ff;
+  --glow-violet: #8b5cff;
+  --node-concept-core: #bff6ff;
+  --node-concept-mid: #3df4ff;
+  --node-concept-edge: #06b6d4;
+  --node-compare-core: #e4dcff;
+  --node-compare-mid: #b9a4ff;
+  --node-compare-edge: #7c3aed;
+  --heading-a: #3df4ff;
+  --heading-b: #8fe9ff;
+  --heading-c: #b9a4ff;
+  --edge-idle: color-mix(in srgb, #3df4ff 20%, transparent);
+  --edge-hot: #3df4ff;
+}
+
+:root[data-theme='light'] {
+  --node-concept-core: #67e8f9;
+  --node-concept-mid: #0891b2;
+  --node-concept-edge: #0e7490;
+  --node-compare-core: #ddd6fe;
+  --node-compare-mid: #8b5cf6;
+  --node-compare-edge: #6d3fe0;
+  --heading-a: #0e7490;
+  --heading-b: #0891b2;
+  --heading-c: #6d3fe0;
+  --edge-idle: color-mix(in srgb, #0e7490 45%, transparent);
+  --edge-hot: #0e7490;
+}
 
 .graph-app {
   color: var(--text);
@@ -56,24 +88,48 @@
   cursor: grabbing;
 }
 
+.graph-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 450px at 52% 49%, color-mix(in srgb, var(--glow-cyan) 10%, transparent), transparent 70%),
+    radial-gradient(
+      ellipse 350px 300px at 63% 72%,
+      color-mix(in srgb, var(--glow-violet) 12%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(ellipse 128% 140% at 50% 50%, transparent 55%, color-mix(in srgb, var(--bg) 95%, transparent) 100%);
+}
+
 .graph-svg {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
+  overflow: visible;
 }
 
 .graph-edge {
-  stroke: var(--muted);
-  stroke-width: 1.4;
+  stroke: var(--edge-idle);
+  stroke-width: 1;
 }
 
 .graph-edge[data-emphasis='neighbour'] {
-  stroke: var(--link);
-  stroke-width: 1.8;
+  stroke: var(--edge-hot);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--glow-cyan) 80%, transparent));
+}
+
+.graph-svg[data-active-type='comparison'] .graph-edge[data-emphasis='neighbour'] {
+  stroke: var(--glow-violet);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--glow-violet) 80%, transparent));
 }
 
 .graph-edge[data-emphasis='dim'] {
   opacity: 0.14;
+  filter: none;
 }
 
 .graph-node,
@@ -94,16 +150,73 @@
   opacity: 0.22;
 }
 
-.graph-node[data-emphasis='active'] .graph-node-shape {
-  filter: drop-shadow(0 0 7px color-mix(in srgb, currentColor 70%, transparent));
+.graph-node[data-emphasis='dim'] .graph-node-shape {
+  filter: none;
 }
 
-.graph-node-shape {
+.graph-node[data-type='entity'] .graph-node-shape {
   fill: currentColor;
+}
+
+.graph-node[data-type='concept'] .graph-node-shape {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--glow-cyan) 70%, transparent));
+}
+
+.graph-node[data-type='comparison'] .graph-node-shape {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--glow-violet) 80%, transparent));
+}
+
+.graph-node[data-emphasis='active'][data-type='concept'] .graph-node-shape {
+  filter:
+    drop-shadow(0 0 9px color-mix(in srgb, var(--glow-cyan) 95%, transparent))
+    drop-shadow(0 0 22px color-mix(in srgb, var(--glow-cyan) 55%, transparent));
+}
+
+.graph-node[data-emphasis='active'][data-type='comparison'] .graph-node-shape {
+  filter:
+    drop-shadow(0 0 9px color-mix(in srgb, var(--glow-violet) 95%, transparent))
+    drop-shadow(0 0 22px color-mix(in srgb, var(--glow-violet) 55%, transparent));
 }
 
 .graph-node[data-type='source'] .graph-node-shape {
   fill: none;
+  filter: none;
+}
+
+.graph-node-halo,
+.graph-node-ring {
+  fill: none;
+  pointer-events: none;
+  stroke: currentColor;
+  stroke-opacity: 0;
+}
+
+.graph-node-halo {
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.graph-node-ring {
+  stroke-width: 1.25;
+}
+
+.graph-node[data-emphasis='active'] .graph-node-halo {
+  stroke-opacity: 0.16;
+}
+
+.graph-node[data-emphasis='active'] .graph-node-ring {
+  stroke-opacity: 0.6;
+  fill: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.graph-node[data-emphasis='active'][data-type='concept'] .graph-label {
+  fill: var(--link);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--glow-cyan) 60%, transparent));
+}
+
+.graph-node[data-emphasis='active'][data-type='comparison'] .graph-label {
+  fill: var(--violet);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--glow-violet) 60%, transparent));
 }
 
 .graph-node-hit {
@@ -150,6 +263,21 @@
   right: 16px;
   width: min(300px, calc(100% - 32px));
   max-height: calc(100% - 168px);
+}
+
+.graph-detail.is-active[data-type='concept'] {
+  border-color: color-mix(in srgb, var(--glow-cyan) 30%, transparent);
+  box-shadow: 0 0 32px color-mix(in srgb, var(--glow-cyan) 12%, transparent);
+}
+
+.graph-detail.is-active[data-type='comparison'] {
+  border-color: color-mix(in srgb, var(--glow-violet) 35%, transparent);
+  box-shadow: 0 0 32px color-mix(in srgb, var(--glow-violet) 14%, transparent);
+}
+
+.graph-detail.is-active[data-type='entity'],
+.graph-detail.is-active[data-type='source'] {
+  box-shadow: 0 0 24px color-mix(in srgb, var(--text) 8%, transparent);
 }
 
 .graph-search {
@@ -225,8 +353,16 @@
   color: var(--link);
 }
 
+.graph-type[data-type='concept'] .page-mark {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--glow-cyan) 75%, transparent));
+}
+
 .graph-type[data-type='comparison'] {
   color: var(--violet);
+}
+
+.graph-type[data-type='comparison'] .page-mark {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--glow-violet) 75%, transparent));
 }
 
 .graph-type[aria-pressed='false'],
@@ -371,9 +507,10 @@
   margin-top: 14px;
   padding: 0 16px;
   border-radius: var(--radius-badge);
-  background: var(--link);
+  background: var(--edge-hot);
   color: var(--bg);
   font-weight: 500;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--glow-cyan) 40%, transparent);
 }
 
 .article .graph-app a.graph-open {
@@ -475,25 +612,45 @@
 }
 
 .graph-mini-view {
-  fill: color-mix(in srgb, var(--accent-tint) 10%, transparent);
-  stroke: var(--link);
+  fill: color-mix(in srgb, var(--glow-cyan) 5%, transparent);
+  stroke: var(--edge-hot);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--glow-cyan) 40%, transparent));
 }
 
 .graph-list {
+  position: relative;
   display: none;
   width: min(640px, calc(100% - 32px));
   margin: 0 auto;
   padding: 28px 0 72px;
 }
 
+.graph-list::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -24px -30vw auto;
+  height: 420px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 80% at -10% 0%, color-mix(in srgb, var(--glow-cyan) 22%, transparent), transparent 62%),
+    radial-gradient(ellipse 80% 70% at 115% 0%, color-mix(in srgb, var(--glow-violet) 24%, transparent), transparent 64%);
+}
+
 .graph-heading {
+  width: fit-content;
   margin-top: 8px;
-  color: var(--link);
+  color: var(--heading-a);
   font-family: var(--font-display);
   font-size: 44px;
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1;
+  background-image: linear-gradient(90deg, var(--heading-a) 0%, var(--heading-b) 50%, var(--heading-c) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 22px color-mix(in srgb, var(--glow-cyan) 40%, transparent));
 }
 
 .graph-lede {
@@ -611,7 +768,7 @@
 .graph-meter {
   grid-area: meter;
   height: 3px;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 999px;
   background: var(--border);
 }
@@ -624,11 +781,46 @@
 }
 
 .graph-row[data-type='concept'] .graph-meter > span {
-  background: var(--link);
+  background: color-mix(in srgb, var(--glow-cyan) 55%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--glow-cyan) 70%, transparent);
 }
 
 .graph-row[data-type='comparison'] .graph-meter > span {
-  background: var(--violet);
+  background: color-mix(in srgb, var(--glow-violet) 55%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--glow-violet) 70%, transparent);
+}
+
+.graph-row:has(.graph-row-button[aria-expanded='true']) {
+  background: color-mix(in srgb, var(--glow-cyan) 6%, transparent);
+  box-shadow:
+    inset 0 -2px 0 var(--edge-hot),
+    inset 0 0 18px color-mix(in srgb, var(--glow-cyan) 12%, transparent);
+}
+
+.graph-row[data-type='comparison']:has(.graph-row-button[aria-expanded='true']) {
+  background: color-mix(in srgb, var(--glow-violet) 8%, transparent);
+  box-shadow:
+    inset 0 -2px 0 var(--violet),
+    inset 0 0 18px color-mix(in srgb, var(--glow-violet) 12%, transparent);
+}
+
+.graph-row[data-type='entity']:has(.graph-row-button[aria-expanded='true']),
+.graph-row[data-type='source']:has(.graph-row-button[aria-expanded='true']) {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+  box-shadow: inset 0 -2px 0 var(--text-2);
+}
+
+.graph-row:has(.graph-row-button[aria-expanded='true']) .page-mark {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--glow-cyan) 80%, transparent));
+}
+
+.graph-row[data-type='comparison']:has(.graph-row-button[aria-expanded='true']) .page-mark {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--glow-violet) 80%, transparent));
+}
+
+.graph-row[data-type='entity']:has(.graph-row-button[aria-expanded='true']) .page-mark,
+.graph-row[data-type='source']:has(.graph-row-button[aria-expanded='true']) .page-mark {
+  filter: none;
 }
 
 .graph-row-body {
@@ -679,11 +871,25 @@
   height: auto;
   margin-top: 8px;
   overflow: visible;
+  border-radius: var(--radius-panel);
+}
+
+.local-wash {
+  pointer-events: none;
 }
 
 .local-edge {
-  stroke: var(--border-strong);
-  stroke-width: 1.25;
+  stroke: color-mix(in srgb, var(--edge-hot) 45%, transparent);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--glow-cyan) 50%, transparent));
+}
+
+.local-halo {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.32;
+  stroke-width: 1;
+  pointer-events: none;
 }
 
 .article a.local-node,
@@ -701,15 +907,36 @@
   color: var(--violet);
 }
 
-.local-node circle {
+.local-node:not([data-type='concept']):not([data-type='comparison']) circle:not(.local-halo) {
   fill: currentColor;
 }
 
-.local-node[data-type='source'] circle {
+.local-node[data-type='concept'] circle:not(.local-halo) {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--glow-cyan) 70%, transparent));
+}
+
+.local-node[data-type='comparison'] circle:not(.local-halo) {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--glow-violet) 80%, transparent));
+}
+
+.local-node[data-role='center'][data-type='concept'] circle:not(.local-halo) {
+  filter:
+    drop-shadow(0 0 9px color-mix(in srgb, var(--glow-cyan) 90%, transparent))
+    drop-shadow(0 0 20px color-mix(in srgb, var(--glow-cyan) 50%, transparent));
+}
+
+.local-node[data-role='center'][data-type='comparison'] circle:not(.local-halo) {
+  filter:
+    drop-shadow(0 0 9px color-mix(in srgb, var(--glow-violet) 90%, transparent))
+    drop-shadow(0 0 20px color-mix(in srgb, var(--glow-violet) 50%, transparent));
+}
+
+.local-node[data-type='source'] circle:not(.local-halo) {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.4;
   stroke-dasharray: 2.4 2;
+  filter: none;
 }
 
 .local-node text {
@@ -811,6 +1038,22 @@
   .graph-type,
   .graph-orphan {
     min-height: 44px;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --node-concept-core: #67e8f9;
+    --node-concept-mid: #0891b2;
+    --node-concept-edge: #0e7490;
+    --node-compare-core: #ddd6fe;
+    --node-compare-mid: #8b5cf6;
+    --node-compare-edge: #6d3fe0;
+    --heading-a: #0e7490;
+    --heading-b: #0891b2;
+    --heading-c: #6d3fe0;
+    --edge-idle: color-mix(in srgb, #0e7490 45%, transparent);
+    --edge-hot: #0e7490;
   }
 }
 

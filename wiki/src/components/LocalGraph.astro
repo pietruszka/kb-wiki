@@ -10,6 +10,12 @@ interface Props {
 }
 
 const { title, type, neighbours } = Astro.props;
+
+function fillFor(pageType: PageType): string {
+  if (pageType === 'concept') return 'url(#wiki-local-fill-concept)';
+  if (pageType === 'comparison') return 'url(#wiki-local-fill-comparison)';
+  return 'currentColor';
+}
 const cx = 180;
 const cy = 96;
 const ring = neighbours.length === 1 ? 70 : 78;
@@ -42,13 +48,31 @@ const points = neighbours.map((neighbour, index) => {
     ) : null
   }
   <svg class="local-graph" viewBox="0 0 360 192" role="group" aria-label={`Pages linked to ${title}`}>
+    <defs>
+      <radialGradient id="wiki-local-wash" cx="50%" cy="46%" r="58%">
+        <stop offset="0%" stop-color="var(--glow-cyan)" stop-opacity="0.12" />
+        <stop offset="100%" stop-color="var(--glow-cyan)" stop-opacity="0" />
+      </radialGradient>
+      <radialGradient id="wiki-local-fill-concept" cx="38%" cy="32%" r="78%">
+        <stop offset="0%" stop-color="var(--node-concept-core)" />
+        <stop offset="48%" stop-color="var(--node-concept-mid)" />
+        <stop offset="100%" stop-color="var(--node-concept-edge)" />
+      </radialGradient>
+      <radialGradient id="wiki-local-fill-comparison" cx="38%" cy="32%" r="78%">
+        <stop offset="0%" stop-color="var(--node-compare-core)" />
+        <stop offset="48%" stop-color="var(--node-compare-mid)" />
+        <stop offset="100%" stop-color="var(--node-compare-edge)" />
+      </radialGradient>
+    </defs>
+    <rect class="local-wash" x="0" y="0" width="360" height="192" fill="url(#wiki-local-wash)" />
     {
       points.map((point) => (
         <line class="local-edge" x1={cx} y1={cy} x2={point.x} y2={point.y} />
       ))
     }
     <g class="local-node" data-type={type} data-role="center" data-testid="wiki.local.center">
-      <circle cx={cx} cy={cy} r="7" />
+      <circle class="local-halo" cx={cx} cy={cy} r="18" />
+      <circle cx={cx} cy={cy} r="7" fill={fillFor(type)} />
       <text x={cx} y={cy + 20} text-anchor="middle">
         {title}
       </text>
@@ -62,7 +86,7 @@ const points = neighbours.map((neighbour, index) => {
           data-testid="wiki.local.link"
           data-slug={point.slug}
         >
-          <circle cx={point.x} cy={point.y} r="5" />
+          <circle cx={point.x} cy={point.y} r="5" fill={fillFor(point.type)} />
           <text x={point.labelX} y={point.labelY} text-anchor={point.anchor}>
             {point.title}
           </text>

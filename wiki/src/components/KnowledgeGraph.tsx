@@ -52,16 +52,39 @@ function pageHref(slug: string): string {
   return sitePath(`${slug}/`);
 }
 
+function GraphDefs() {
+  return (
+    <defs>
+      <radialGradient id="graph-fill-concept" cx="38%" cy="32%" r="78%">
+        <stop offset="0%" stopColor="var(--node-concept-core)" />
+        <stop offset="48%" stopColor="var(--node-concept-mid)" />
+        <stop offset="100%" stopColor="var(--node-concept-edge)" />
+      </radialGradient>
+      <radialGradient id="graph-fill-comparison" cx="38%" cy="32%" r="78%">
+        <stop offset="0%" stopColor="var(--node-compare-core)" />
+        <stop offset="48%" stopColor="var(--node-compare-mid)" />
+        <stop offset="100%" stopColor="var(--node-compare-edge)" />
+      </radialGradient>
+    </defs>
+  );
+}
+
 function NodeShape({ type, radius }: { type: PageType; radius: number }) {
   if (type === 'concept') {
-    return <path d={`M0 ${-radius} L${radius} 0 L0 ${radius} L${-radius} 0 Z`} className="graph-node-shape" />;
+    return (
+      <path
+        d={`M0 ${-radius} L${radius} 0 L0 ${radius} L${-radius} 0 Z`}
+        className="graph-node-shape"
+        fill="url(#graph-fill-concept)"
+      />
+    );
   }
   const dashed = type === 'source';
   return (
     <circle
       r={radius}
       className="graph-node-shape"
-      fill={dashed ? 'none' : 'currentColor'}
+      fill={dashed ? 'none' : type === 'comparison' ? 'url(#graph-fill-comparison)' : 'currentColor'}
       stroke={dashed ? 'currentColor' : 'none'}
       strokeWidth={dashed ? 1.5 : 0}
       strokeDasharray={dashed ? '3 2.2' : undefined}
@@ -371,16 +394,19 @@ export default function KnowledgeGraph({ graph, summaries }: Props) {
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
         >
+          <div className="graph-atmosphere" aria-hidden="true" />
           <svg
             className="graph-svg"
             data-testid="graph.map.viewport"
             data-pan-x={view.x}
             data-pan-y={view.y}
             data-k={view.k}
+            data-active-type={selected?.type ?? 'none'}
             role="group"
             aria-label="Wiki pages and the links between them"
             aria-describedby="graph-help"
           >
+            <GraphDefs />
             <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
               <g aria-hidden="true">
                 {lines.map((edge) => {
@@ -426,6 +452,8 @@ export default function KnowledgeGraph({ graph, summaries }: Props) {
                   >
                     <g transform={`translate(${node.x} ${node.y})`}>
                       <circle className="graph-node-hit" r={Math.max(radius + 8, 16)} />
+                      <circle className="graph-node-halo" r={radius * 3.15} />
+                      <circle className="graph-node-ring" r={radius * 2} />
                       <NodeShape type={node.type} radius={radius} />
                       {showLabel ? (
                         <text className="graph-label" x={radius + 14} y="0" dominantBaseline="middle">
@@ -519,7 +547,12 @@ function Detail({
   const summary = node ? summaries[node.slug] : undefined;
   const links = node ? linkedNodes(graph, node.id).filter((item) => shownIds.has(item.id)) : [];
   return (
-    <aside className="graph-detail" data-testid="graph.detail" aria-live="polite">
+    <aside
+      className={node ? 'graph-detail is-active' : 'graph-detail'}
+      data-testid="graph.detail"
+      data-type={node?.type ?? 'none'}
+      aria-live="polite"
+    >
       <p className="graph-kicker">Selected node</p>
       {node ? (
         <>
