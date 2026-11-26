@@ -1,5 +1,7 @@
 ---
+import LocalGraph from './LocalGraph.astro';
 import PageTypeBadge from './PageTypeBadge.astro';
+import type { GraphNeighbour } from '../lib/graph';
 import { countNoun, formatWikiDate, sourceHostname } from '../lib/format';
 import { sitePath } from '../lib/paths';
 import type { PageType } from '../lib/page-types';
@@ -16,9 +18,10 @@ interface Props {
   updated: Date;
   status: PageStatus;
   backlinks: Backlink[];
+  neighbours?: GraphNeighbour[];
 }
 
-const { slug, type, title, summary, tags, sources, updated, status, backlinks } = Astro.props;
+const { slug, type, title, summary, tags, sources, updated, status, backlinks, neighbours = [] } = Astro.props;
 const updatedIso = formatWikiDate(updated);
 ---
 
@@ -87,6 +90,7 @@ const updatedIso = formatWikiDate(updated);
       )
     }
   </section>
+  <LocalGraph title={title} type={type} neighbours={neighbours} />
   <section class="wiki-section" aria-labelledby="wiki-sources-title" data-testid="wiki.sources">
     <div class="wiki-section-head">
       <h2 id="wiki-sources-title">Sources</h2>

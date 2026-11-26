@@ -1,0 +1,97 @@
+---
+import type { GraphNeighbour } from '../lib/graph';
+import { sitePath } from '../lib/paths';
+import type { PageType } from '../lib/page-types';
+
+interface Props {
+  title: string;
+  type: PageType;
+  neighbours: GraphNeighbour[];
+}
+
+const { title, type, neighbours } = Astro.props;
+
+function fillFor(pageType: PageType): string {
+  if (pageType === 'concept') return 'url(#wiki-local-fill-concept)';
+  if (pageType === 'comparison') return 'url(#wiki-local-fill-comparison)';
+  return 'currentColor';
+}
+const cx = 180;
+const cy = 96;
+const ring = neighbours.length === 1 ? 70 : 78;
+
+const points = neighbours.map((neighbour, index) => {
+  const angle =
+    neighbours.length === 1 ? -Math.PI / 2 : -Math.PI / 2 + (2 * Math.PI * index) / neighbours.length;
+  const x = cx + Math.cos(angle) * ring;
+  const y = cy + Math.sin(angle) * ring;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const anchor = cos > 0.45 ? 'start' : cos < -0.45 ? 'end' : 'middle';
+  const labelX = anchor === 'start' ? x + 12 : anchor === 'end' ? x - 12 : x;
+  const labelY = anchor === 'middle' ? y + (sin >= 0 ? 18 : -14) : y + 4;
+  return { ...neighbour, x, y, anchor, labelX, labelY };
+});
+---
+
+<section class="wiki-section wiki-local" aria-labelledby="wiki-local-title" data-testid="wiki.local">
+  <div class="wiki-section-head">
+    <h2 id="wiki-local-title">Local graph</h2>
+    <a class="local-open" href={sitePath('/graph')} data-testid="wiki.local.open">Open graph</a>
+  </div>
+  <p class="wiki-count">1 hop</p>
+  {
+    neighbours.length === 0 ? (
+      <p class="wiki-empty" data-testid="wiki.local.empty">
+        No linked pages yet.
+      </p>
+    ) : null
+  }
+  <svg class="local-graph" viewBox="0 0 360 192" role="group" aria-label={`Pages linked to ${title}`}>
+    <defs>
+      <radialGradient id="wiki-local-wash" cx="50%" cy="46%" r="58%">
+        <stop offset="0%" stop-color="var(--glow-cyan)" stop-opacity="0.12" />
+        <stop offset="100%" stop-color="var(--glow-cyan)" stop-opacity="0" />
+      </radialGradient>
+      <radialGradient id="wiki-local-fill-concept" cx="38%" cy="32%" r="78%">
+        <stop offset="0%" stop-color="var(--node-concept-core)" />
+        <stop offset="48%" stop-color="var(--node-concept-mid)" />
+        <stop offset="100%" stop-color="var(--node-concept-edge)" />
+      </radialGradient>
+      <radialGradient id="wiki-local-fill-comparison" cx="38%" cy="32%" r="78%">
+        <stop offset="0%" stop-color="var(--node-compare-core)" />
+        <stop offset="48%" stop-color="var(--node-compare-mid)" />
+        <stop offset="100%" stop-color="var(--node-compare-edge)" />
+      </radialGradient>
+    </defs>
+    <rect class="local-wash" x="0" y="0" width="360" height="192" fill="url(#wiki-local-wash)" />
+    {
+      points.map((point) => (
+        <line class="local-edge" x1={cx} y1={cy} x2={point.x} y2={point.y} />
+      ))
+    }
+    <g class="local-node" data-type={type} data-role="center" data-testid="wiki.local.center">
+      <circle class="local-halo" cx={cx} cy={cy} r="18" />
+      <circle cx={cx} cy={cy} r="7" fill={fillFor(type)} />
+      <text x={cx} y={cy + 20} text-anchor="middle">
+        {title}
+      </text>
+    </g>
+    {
+      points.map((point) => (
+        <a
+          class="local-node"
+          href={point.href}
+          data-type={point.type}
+          data-testid="wiki.local.link"
+          data-slug={point.slug}
+        >
+          <circle cx={point.x} cy={point.y} r="5" fill={fillFor(point.type)} />
+          <text x={point.labelX} y={point.labelY} text-anchor={point.anchor}>
+            {point.title}
+          </text>
+        </a>
+      ))
+    }
+  </svg>
+</section>

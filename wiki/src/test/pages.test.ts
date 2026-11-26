@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { expect, test } from 'vitest';
 import config from '../../astro.config';
+import Graph from '../pages/graph.astro';
 import Index from '../pages/index.astro';
 import Log from '../pages/log.astro';
 import NotFound from '../pages/404.astro';
@@ -92,6 +93,22 @@ test('tags and sources list the pages that use them', async () => {
   expect(sources).toContain('https://en.wikipedia.org/wiki/Zettelkasten');
   expect(sources).toContain('Backlink');
   expect(sources).toContain('Slip box');
+});
+
+test('the graph page lists every page and links each node to its page', async () => {
+  const html = await renderPage(Graph, '/kb-wiki/graph');
+  expect(html).toContain('data-testid="graph.page"');
+  expect(html).toContain('data-testid="graph.map"');
+  expect(html).toContain('data-testid="graph.list"');
+  expect(html).toContain('aria-current="page"');
+  const list = html.slice(html.indexOf('data-testid="graph.list"'));
+  const pages = loadWikiPages(fileURLToPath(new URL('../content/wiki', import.meta.url)));
+  expect(pages.length).toBeGreaterThan(0);
+  for (const page of pages) {
+    expect(list).toContain(`data-slug="${page.slug}"`);
+    expect(list).toContain(page.data.title);
+    expect(html).toContain(`href="${sitePath(`${page.slug}/`)}"`);
+  }
 });
 
 test('missing pages name the problem and link back to the index', async () => {

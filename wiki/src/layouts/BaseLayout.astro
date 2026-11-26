@@ -11,7 +11,7 @@ interface Props {
   current?: NavId;
   indexed?: boolean;
   testId?: string;
-  width?: 'column' | 'wide';
+  width?: 'column' | 'wide' | 'full';
 }
 
 const { title, description, current, indexed = true, testId, width = 'column' } = Astro.props;
@@ -35,7 +35,7 @@ const boot = themeBootScript();
   <body>
     <a class="skip" href="#content">Skip to content</a>
     <div
-      class:list={['hud', { 'hud-wide': width === 'wide' }]}
+      class:list={['hud', { 'hud-wide': width === 'wide' || width === 'full' }]}
       data-testid="layout.backdrop"
       aria-hidden="true"
     >
@@ -43,7 +43,10 @@ const boot = themeBootScript();
     <div class="page">
       <TopBar current={current} />
       <main id="content" class="main">
-        <article class:list={['article', { 'article-wide': width === 'wide' }]} data-testid={testId}>
+        <article
+          class:list={['article', { 'article-wide': width === 'wide', 'article-full': width === 'full' }]}
+          data-testid={testId}
+        >
           <slot />
         </article>
       </main>
