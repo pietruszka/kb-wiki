@@ -1,6 +1,6 @@
 # kb-wiki
 
-A personal knowledge base compiled by an LLM. The site is an Astro app in [`wiki/`](wiki/). The repository root keeps this README, the design mockups in [`design/`](design/), and, later, the raw sources and agent files that should not be published.
+A personal knowledge base compiled by an LLM. The site is an Astro app in [`wiki/`](wiki/). The repository root keeps this README, the design mockups in [`design/`](design/), the sources in [`raw/`](raw/), and the agent files.
 
 Live site: https://pietruszka.github.io/kb-wiki/
 
@@ -64,22 +64,62 @@ What changed, in a sentence or two.
 
 The sections are `Concept`, `Comparison`, `Entity`, and `Source`. The build checks this file against `wiki/src/content/wiki`. It fails, and names the page, when a page is missing, a line names a page that does not exist, a page is under the wrong type, or the title or summary disagrees with the frontmatter. That check runs inside `npm run build`. It is not a separate CI script.
 
-## Working on the wiki
+## Workflows
 
-Agents write the pages. The schema, the link rules, and the checks are in [AGENTS.md](AGENTS.md). [CLAUDE.md](CLAUDE.md) points Claude Code at that file. Skills:
+Agents write the pages. The schema, the link rules, and the checks are in [AGENTS.md](AGENTS.md). [CLAUDE.md](CLAUDE.md) points Claude Code at that file. Read the skill for the task. Each skill stops before it edits.
 
-- [`.agents/skills/ingest/SKILL.md`](.agents/skills/ingest/SKILL.md) files one source
-- [`.agents/skills/query/SKILL.md`](.agents/skills/query/SKILL.md) answers from the pages
-- [`.agents/skills/lint/SKILL.md`](.agents/skills/lint/SKILL.md) is the judgement pass
+[`slip-box`](wiki/src/content/wiki/slip-box.md) is a finished ingest: a source page, a wikilink from [`llm-wiki`](wiki/src/content/wiki/llm-wiki.md), a line under Source in [`index.md`](index.md), and an `ingest` entry in [`log.md`](log.md).
 
-### Ingesting one source
+### Adding a new source
 
-[`slip-box`](wiki/src/content/wiki/slip-box.md) is a finished ingest: a source page, a wikilink from [`llm-wiki`](wiki/src/content/wiki/llm-wiki.md), a line under Source in [`index.md`](index.md), and the `ingest` entry dated 2026-11-25 in [`log.md`](log.md). The page cites a public article and keeps this wiki's own wording. A new source follows that shape, and the agent stops before any file changes.
+Skill: [`.agents/skills/ingest/SKILL.md`](.agents/skills/ingest/SKILL.md). It files one article, note, URL, or file.
 
-1. Put one source Piotr is willing to publish in [`raw/`](raw/README.md). For a copyrighted or paywalled text, the file is a link plus his notes.
-2. Ask the agent to ingest that source. It reads the source, `index.md`, and the pages the claims touch, then stops with a plan: which pages to create, which to update, and why. For the slip box, that plan was the source page `slip-box` and a link from `llm-wiki`.
-3. After you approve the plan, the agent writes the pages in English, updates the matching lines in `index.md`, and appends an `ingest` entry at the top of `log.md`.
-4. From `wiki/` it runs `npm run typecheck`, `npm test`, and `npm run build`. You review the diff.
+[`raw/`](raw/) is committed and public. Read [`raw/README.md`](raw/README.md) before adding a file.
+
+1. Put one source in `raw/`. The file is notes Piotr is willing to publish, or a document whose licence allows republication. For a copyrighted or paywalled text, commit a link plus his notes and leave the full text out.
+2. Ask the agent to ingest that source.
+3. Review the plan. It names the source, the pages to create, the pages to update, and any further sources left waiting. Pages are written only after you approve.
+4. Approve with an explicit yes, or name a narrower plan.
+5. From `wiki/`, run:
+
+   ```bash
+   npm run typecheck
+   npm test
+   npm run build
+   ```
+
+   `npm run build` runs `astro build`, then Pagefind over `wiki/dist`. It fails on invalid frontmatter, a broken wikilink, and an orphan page. The skill runs the same three commands after it writes.
+6. Review the diff, commit, and open a pull request.
+
+### Asking a question
+
+Skill: [`.agents/skills/query/SKILL.md`](.agents/skills/query/SKILL.md).
+
+1. Ask the question.
+2. The answer cites each claim with a wiki page, written as `[[slug]]`. A point with no page behind it is labeled as not in the wiki.
+3. When the answer is worth keeping, the agent asks before it saves a page. It recommends `concept` for one claim, or `comparison` when two approaches sit side by side. Yes files that page and runs the same three commands from `wiki/`. No leaves the files unchanged.
+
+### Periodic tidy-up
+
+Skill: [`.agents/skills/lint/SKILL.md`](.agents/skills/lint/SKILL.md). It reports judgement findings, then edits after approval. The findings are a stale claim, a contradiction, a missing concept page, a weak summary, or a page to split or merge. Invalid frontmatter, a broken wikilink, and an orphan page fail `npm run build`.
+
+1. Ask the agent to lint the wiki.
+2. Read the findings. Editing waits until you name which ones to fix.
+3. Name which findings to change. It edits only those, then runs the same three commands from `wiki/`.
+
+### Working through a backlog
+
+Ingest one source at a time, then lint once at the end.
+
+1. Hand over the sources. The ingest skill plans the first and lists the rest as waiting.
+2. Finish that source, including the checks in `wiki/`, before the next one.
+3. When nothing is waiting, ask for one lint pass.
+
+### Shipping
+
+1. Merge the pull request to `main`.
+2. [Deploy Pages](.github/workflows/deploy-pages.yml) runs `verify`, then `build`, then `deploy`. `verify` also typechecks, tests, and builds on the pull request. `build` and `deploy` publish `wiki/dist` on a push to `main`, or on a manual run.
+3. The change shows up at https://pietruszka.github.io/kb-wiki/, in the graph and in search.
 
 ## Where the site lives
 
@@ -91,4 +131,4 @@ Publishing the repository root instead would put `/wiki/` in the URL (`https://p
 
 In the repository: **Settings > Pages > Source: GitHub Actions**.
 
-[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) typechecks, tests, and builds on pull requests and on `main`. That build includes the orphan check. The Pages artifact and the deploy stay separate jobs. A push to `main`, or a manual run, deploys `wiki/dist`. The first deploy can take a minute.
+The workflow file is [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml). The first deploy can take a minute. What a merge to `main` publishes is under [Shipping](#shipping).
