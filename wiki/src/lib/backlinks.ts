@@ -19,7 +19,7 @@ export type Backlink = {
 };
 
 /** Pages whose bodies link to each slug. A missing target fails. Self-links are not backlinks. */
-export function backlinksBySlug(pages: WikiRecord[], base: string): Map<string, Backlink[]> {
+export function backlinksBySlug(pages: readonly WikiRecord[], base: string): Map<string, Backlink[]> {
   const known = new Set(pages.map((page) => page.slug));
   const incoming = new Map<string, Backlink[]>(pages.map((page) => [page.slug, []]));
   for (const page of pages) {
