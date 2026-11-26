@@ -80,6 +80,31 @@
   outline: none;
 }
 
+.home-search-kbd {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 4px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.home-search-kbd kbd {
+  font: inherit;
+}
+
+.home-search-kbd:hover {
+  border-color: var(--link);
+  color: var(--link);
+}
+
 .try-row {
   display: flex;
   flex-wrap: wrap;

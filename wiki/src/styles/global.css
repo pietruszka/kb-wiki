@@ -8,6 +8,7 @@
 @import './home.css';
 @import './log.css';
 @import './graph.css';
+@import './search.css';
 
 *,
 *::before,
@@ -472,11 +473,14 @@ body {
   .nav {
     order: 3;
   }
-}
 
-@media (max-width: 380px) {
   .github-label {
     display: none;
+  }
+
+  .topbar {
+    padding-inline: 12px;
+    gap: 8px;
   }
 }
 

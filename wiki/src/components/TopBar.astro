@@ -1,4 +1,5 @@
 ---
+import SearchPalette from './SearchPalette';
 import ThemeToggle from './ThemeToggle';
 import { GITHUB_URL, NAV_ITEMS, type NavId } from '../lib/nav';
 import { sitePath } from '../lib/paths';
@@ -10,7 +11,7 @@ interface Props {
 const { current } = Astro.props;
 ---
 
-<header class="topbar" data-testid="layout.topbar">
+<header class="topbar" data-testid="layout.topbar" data-pagefind-ignore="all">
   <a class="brand" href={sitePath('/')}>
     <span class="mark" aria-hidden="true">kb</span>
     <span class="brand-full">pietruszka <span class="brand-slash">/</span> wiki</span>
@@ -36,6 +37,7 @@ const { current } = Astro.props;
     </ul>
   </details>
   <div class="topbar-end">
+    <SearchPalette client:load />
     <ThemeToggle client:load />
     <a
       class="github"
