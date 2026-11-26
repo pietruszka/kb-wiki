@@ -1,6 +1,7 @@
 import { backlinksBySlug, type WikiRecord } from './backlinks';
 import type { CatalogCard } from './catalog-view';
 import { ageInDays, formatAge, type LogEntry } from './log';
+import { orphanRecords } from './orphans';
 import type { PageType } from './page-types';
 import type { PageStatus } from './wiki-schema';
 import { sitePath } from './paths';
@@ -59,7 +60,6 @@ export function catalogStats(pages: CatalogInput[]): CatalogStats {
   const tags = new Set<string>();
   const sources = new Set<string>();
   let backlinks = 0;
-  let orphans = 0;
   let drafts = 0;
   let stable = 0;
   let stale = 0;
@@ -68,9 +68,7 @@ export function catalogStats(pages: CatalogInput[]): CatalogStats {
     byType[page.type] += 1;
     for (const tag of page.tags) tags.add(tag);
     for (const source of page.sources) sources.add(sourceKey(source));
-    const links = incoming.get(page.slug)?.length ?? 0;
-    backlinks += links;
-    if (links === 0) orphans += 1;
+    backlinks += incoming.get(page.slug)?.length ?? 0;
     if (page.status === 'draft') drafts += 1;
     if (page.status === 'stable') stable += 1;
     if (page.status === 'stale') stale += 1;
@@ -82,7 +80,7 @@ export function catalogStats(pages: CatalogInput[]): CatalogStats {
     sources: sources.size,
     backlinks,
     tags: [...tags].sort((a, b) => a.localeCompare(b, 'en')),
-    orphans,
+    orphans: orphanRecords(records, incoming).length,
     drafts,
     stable,
     stale,

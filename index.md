@@ -2,7 +2,7 @@
 
 Catalogue of wiki pages for the agent that maintains them. One line per page, grouped by type. The link points at the source file. The text after the em dash is the page summary, copied from that file's frontmatter.
 
-The site build reads this file and the pages in `wiki/src/content/wiki`. It fails if a page is missing, if a line names a page that does not exist, if a page sits under the wrong type, or if the title or summary disagrees with that page.
+The site build reads this file and the pages in `wiki/src/content/wiki`. It fails if a page is missing, if a line names a page that does not exist, if a page sits under the wrong type, if the title or summary disagrees with that page, or if a page has no inbound wikilink. A wiki with a single page is the exception to that last check.
 
 ## Concept
 

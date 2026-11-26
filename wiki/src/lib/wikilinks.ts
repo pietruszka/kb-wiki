@@ -52,7 +52,7 @@ function stripNonLinks(markdown: string): string {
   return markdown
     .replace(/```[\s\S]*?```/g, '')
     .replace(/~~~[\s\S]*?~~~/g, '')
-    .replace(/`[^`\n]*`/g, '')
+    .replace(/(`+)[^\n]*?\1/g, '')
     .replace(/!?\[[^\[\]\n]*\]\([^)\n]*\)/g, '');
 }
 

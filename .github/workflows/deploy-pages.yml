@@ -6,12 +6,14 @@
 # The live URL is https://pietruszka.github.io/kb-wiki/. Astro `base` is
 # /kb-wiki, so the artifact root is the site root and the URL has no /wiki/
 # segment. Publishing the repository root would add that segment and would
-# also publish README.md, design/, and later root files.
+# also publish README.md, design/, raw/, and the agent files.
 #
 # `verify` typechecks, tests, and builds on pull requests and pushes. It
-# does not upload. On a push to main or a manual run, `build` (after
-# verify) produces one Pages artifact and `deploy` publishes it. Those are
-# separate jobs: deploy-pages only sees artifacts from completed jobs, so
+# does not upload. The build fails on bad frontmatter, a broken wikilink,
+# an orphan page, index drift, or a malformed log entry. On a push to main
+# or a manual run, `build` (after verify) produces one Pages artifact and
+# `deploy` publishes it. `build` and `deploy` stay separate jobs:
+# deploy-pages only sees artifacts from completed jobs, so
 # an upload in the same job is reported as "Found 0 artifact(s)". A re-run
 # of that combined job adds another artifact named github-pages. Upload
 # once, in `build`.

@@ -37,6 +37,7 @@ test('extractWikilinks reads slug and label, and skips code', () => {
   const markdown = [
     'See [[llm-wiki|the wiki]] and [[ obsidian ]].',
     'Not a link: `[[missing-page]]`.',
+    'Nor this: ``[[missing-page]]``.',
     '```',
     '[[missing-page]]',
     '```',

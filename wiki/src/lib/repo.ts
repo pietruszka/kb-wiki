@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { catalogCards, catalogStats, type CatalogInput } from './catalog';
 import { assertIndexMatches, indexPathFor, parseIndex } from './index-catalog';
 import { newestFirst, parseLog, type LogEntry } from './log';
+import { assertNoOrphanPages } from './orphans';
 import { loadWikiPages, type LoadedPage } from './wiki-catalog';
 
 // The prerender bundle does not keep this file's URL. `astro build` and
@@ -35,7 +36,7 @@ export type SiteFiles = {
   indexText: string;
 };
 
-/** Read the root log and catalogue and fail the build when either is wrong. */
+/** Read the root log and catalogue. Fail the build when either is wrong, or when a page has no inbound wikilink. */
 export function loadSiteFiles(): SiteFiles {
   const loaded = loadWikiPages(wikiDir);
   let logText: string;
@@ -62,6 +63,16 @@ export function loadSiteFiles(): SiteFiles {
       summary: page.summary,
     })),
     INDEX_FILE,
+  );
+  assertNoOrphanPages(
+    pages.map((page) => ({
+      slug: page.slug,
+      title: page.title,
+      summary: page.summary,
+      type: page.type,
+      body: page.body,
+      file: page.file,
+    })),
   );
   return { pages, logText, log, indexText };
 }
