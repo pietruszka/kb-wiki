@@ -62,6 +62,23 @@ test('a wiki page shows its type, metadata, body, and backlinks', async () => {
   expect(html).toContain('data-slug="backlink"');
   expect(html).toContain('data-testid="wiki.local.open"');
   expect(html).toContain(`href="${sitePath('/graph')}"`);
+  expect(html).toContain('data-pagefind-body');
+  expect(html).toContain('data-pagefind-filter="type:concept"');
+  expect(html).toContain('data-pagefind-meta="type:concept"');
+  expect(html).toContain('data-pagefind-filter="status:stable"');
+  expect(html).toContain('data-pagefind-meta="status:stable"');
+  expect(html).toContain('data-pagefind-filter="tag:knowledge-base"');
+  expect(html).toContain('data-pagefind-filter="tag:llm"');
+  expect(html).toContain('data-pagefind-meta="tags:knowledge-base, llm"');
+  const indexed = html.slice(html.indexOf('data-pagefind-body'), html.indexOf('data-testid="wiki.backlinks"'));
+  expect(indexed).toContain('data-testid="wiki.body"');
+  expect(indexed).toContain('Compiled once.');
+  expect(indexed).not.toContain('data-testid="wiki.backlinks"');
+  expect(indexed).not.toContain('Pages that link here.');
+  expect(html).toContain('data-testid="wiki.backlinks"');
+  expect(html).toMatch(/data-testid="wiki\.backlinks"[\s\S]*?data-pagefind-ignore="all"/);
+  expect(html).toMatch(/data-testid="wiki\.local"[\s\S]*?data-pagefind-ignore="all"/);
+  expect(html).toMatch(/data-testid="wiki\.sources"[\s\S]*?data-pagefind-ignore="all"/);
 });
 
 test('comparison, entity, and source pages keep their own type', async () => {

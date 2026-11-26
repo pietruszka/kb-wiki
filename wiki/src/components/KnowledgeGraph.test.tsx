@@ -5,7 +5,10 @@ import type { GraphDocument, GraphNode } from '../lib/graph';
 import { sitePath } from '../lib/paths';
 import KnowledgeGraph from './KnowledgeGraph';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.history.replaceState(null, '', '/');
+});
 
 function node(partial: Pick<GraphNode, 'slug' | 'type' | 'degree' | 'x' | 'y'> & { title?: string }): GraphNode {
   return {
@@ -45,6 +48,12 @@ function mapNode(slug: string): SVGElement {
 function renderGraph() {
   render(<KnowledgeGraph graph={graph} summaries={{ alpha: 'Alpha stays put.' }} />);
 }
+
+test('a focus query selects that page on the map', () => {
+  window.history.replaceState(null, '', '/kb-wiki/graph?focus=gamma');
+  renderGraph();
+  expect(mapNode('gamma').dataset.emphasis).toBe('active');
+});
 
 test('the mobile list names every page, its link count, and its neighbours', () => {
   renderGraph();

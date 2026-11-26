@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, expect, test } from 'vitest';
 import { applyWikilinks, remarkWikilinks, type MarkdownNode } from './remark-wikilinks';
-import { brokenWikilinkMessage, extractWikilinks, wikiPageHref, type WikiTarget } from './wikilinks';
+import { brokenWikilinkMessage, extractWikilinks, plainWikilinkText, wikiPageHref, type WikiTarget } from './wikilinks';
 
 const catalog = new Map<string, WikiTarget>([
   ['llm-wiki', { slug: 'llm-wiki', title: 'LLM wiki', type: 'concept' }],
@@ -19,6 +19,13 @@ const dirs: string[] = [];
 
 afterEach(() => {
   for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+});
+
+test('plainWikilinkText keeps the label, otherwise the title or the slug', () => {
+  const titles = new Map([['llm-wiki', 'LLM wiki']]);
+  expect(plainWikilinkText('[[llm-wiki|LLM wiki]] and [[llm-wiki]] and [[missing-page]]', titles)).toBe(
+    'LLM wiki and LLM wiki and missing-page',
+  );
 });
 
 test('wikiPageHref keeps the project base and a trailing slash', () => {

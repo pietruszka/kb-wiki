@@ -199,6 +199,13 @@ export default function KnowledgeGraph({ graph, summaries }: Props) {
   );
   const [expanded, setExpanded] = useState<string | null>(defaultOpen);
 
+  useEffect(() => {
+    const focus = new URLSearchParams(window.location.search).get('focus')?.trim();
+    if (!focus) return;
+    setActive(focus);
+    setExpanded(focus);
+  }, []);
+
   const filter = { query, types, showOrphans };
   const shown = visibleNodes(graph.nodes, filter);
   const shownIds = new Set(shown.map((node) => node.id));

@@ -20,7 +20,7 @@ const weeks = weeklyCounts(log, today);
 const weekMax = Math.max(1, ...weeks);
 const weekLabel = `Log entries by week, oldest first: ${weeks.join(', ')}`;
 const tags = tagGroups(cards);
-const placeholder = `Filter ${stats.pages} pages, ${stats.sources} sources, ${stats.tags.length} tags`;
+const placeholder = `Search ${stats.pages} pages, ${stats.sources} sources, ${stats.tags.length} tags…`;
 
 const steps = [
   {
@@ -247,7 +247,7 @@ const steps = [
       </ol>
     </section>
 
-    <footer class="home-foot">
+    <footer class="home-foot" data-pagefind-ignore="all">
       <p>Astro · React islands · MDX · static on GitHub Pages</p>
       <p>
         <a href="https://pietruszka.github.io/kb-wiki/">pietruszka.github.io/kb-wiki</a>

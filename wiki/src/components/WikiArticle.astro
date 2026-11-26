@@ -26,7 +26,14 @@ const updatedIso = formatWikiDate(updated);
 ---
 
 <div class="wiki" data-type={type} data-testid="wiki.entry">
-  <nav class="wiki-crumb" aria-label="Breadcrumb" data-testid="wiki.breadcrumb">
+  {/* Filters stay out of the excerpt. Pagefind still reads them from here. */}
+  <span data-pagefind-filter={`type:${type}`} data-pagefind-meta={`type:${type}`}></span>
+  <span data-pagefind-filter={`status:${status}`} data-pagefind-meta={`status:${status}`}></span>
+  {tags.map((tag) => (
+    <span data-pagefind-filter={`tag:${tag}`}></span>
+  ))}
+  {tags.length > 0 && <span data-pagefind-meta={`tags:${tags.join(', ')}`}></span>}
+  <nav class="wiki-crumb" aria-label="Breadcrumb" data-testid="wiki.breadcrumb" data-pagefind-ignore="all">
     <a href={sitePath('/')}>Index</a>
     <span aria-hidden="true">/</span>
     <span aria-current="page">{slug}</span>
@@ -45,9 +52,10 @@ const updatedIso = formatWikiDate(updated);
       )
     }
   </div>
+  <div data-pagefind-body>
   <h1 class="wiki-title" data-testid="wiki.title">{title}</h1>
   <p class="wiki-summary" data-testid="wiki.summary">{summary}</p>
-  <div class="wiki-meta" data-testid="wiki.meta">
+  <div class="wiki-meta" data-testid="wiki.meta" data-pagefind-ignore="all">
     <span class="wiki-status" data-status={status} data-testid="wiki.meta.status">{status}</span>
     <span class="wiki-dot" aria-hidden="true">·</span>
     <span data-testid="wiki.meta.updated">
@@ -59,7 +67,13 @@ const updatedIso = formatWikiDate(updated);
   <div class="wiki-body" data-testid="wiki.body">
     <slot />
   </div>
-  <section class="wiki-section" aria-labelledby="wiki-backlinks-title" data-testid="wiki.backlinks">
+  </div>
+  <section
+    class="wiki-section"
+    aria-labelledby="wiki-backlinks-title"
+    data-testid="wiki.backlinks"
+    data-pagefind-ignore="all"
+  >
     <div class="wiki-section-head">
       <h2 id="wiki-backlinks-title">Backlinks</h2>
       <p class="wiki-count" data-testid="wiki.backlinks.count">
@@ -91,7 +105,12 @@ const updatedIso = formatWikiDate(updated);
     }
   </section>
   <LocalGraph title={title} type={type} neighbours={neighbours} />
-  <section class="wiki-section" aria-labelledby="wiki-sources-title" data-testid="wiki.sources">
+  <section
+    class="wiki-section"
+    aria-labelledby="wiki-sources-title"
+    data-testid="wiki.sources"
+    data-pagefind-ignore="all"
+  >
     <div class="wiki-section-head">
       <h2 id="wiki-sources-title">Sources</h2>
       <p class="wiki-count" data-testid="wiki.sources.count">

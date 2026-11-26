@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FILTER_CLEAR_EVENT, FILTER_EVENT } from '../lib/filter-events';
+import { SEARCH_OPEN_EVENT } from '../lib/search';
 
 type Props = {
   placeholder: string;
@@ -28,7 +29,7 @@ export default function HomeSearch({ placeholder }: Props) {
         <path d="M10.4 10.4 13.5 13.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
       <label className="home-search-label">
-        <span className="visually-hidden">Filter pages</span>
+        <span className="visually-hidden">Filter the catalog</span>
         <input
           type="search"
           name="q"
@@ -49,6 +50,15 @@ export default function HomeSearch({ placeholder }: Props) {
           }}
         />
       </label>
+      <button
+        type="button"
+        className="home-search-kbd"
+        data-testid="home.filter.search"
+        onClick={() => document.dispatchEvent(new Event(SEARCH_OPEN_EVENT))}
+      >
+        <span className="visually-hidden">Open search</span>
+        <kbd aria-hidden="true">⌘K</kbd>
+      </button>
     </form>
   );
 }

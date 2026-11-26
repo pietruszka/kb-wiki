@@ -3,6 +3,7 @@ import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import { defineConfig } from 'astro/config';
+import { rehypeIndexWikilinks } from './src/lib/rehype-index-wikilinks';
 import { remarkWikilinks } from './src/lib/remark-wikilinks';
 import { SITE_BASE, SITE_ORIGIN } from './src/lib/site';
 
@@ -22,6 +23,7 @@ export default defineConfig({
     syntaxHighlight: false,
     processor: unified({
       remarkPlugins: [[remarkWikilinks, { dir: wikiDir, base: SITE_BASE }]],
+      rehypePlugins: [[rehypeIndexWikilinks, { dir: wikiDir }]],
     }),
   },
 });

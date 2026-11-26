@@ -21,6 +21,10 @@ test('home uses the shell, the headline, and every page type', async () => {
   expect(html).toContain('Notes compiled,');
   expect(html).toContain('not retrieved.');
   expect(html).toContain('data-testid="layout.topbar"');
+  expect(html).toContain('data-pagefind-ignore="all"');
+  expect(html).toContain('data-testid="search.trigger"');
+  expect(html).toContain('Search pages, sources...');
+  expect(html).not.toContain('data-pagefind-body');
   expect(html).toContain('data-testid="layout.backdrop"');
   expect(html).toContain('aria-current="page"');
   expect(config.site).toBe('https://pietruszka.github.io');

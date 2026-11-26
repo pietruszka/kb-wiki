@@ -34,7 +34,12 @@ const points = neighbours.map((neighbour, index) => {
 });
 ---
 
-<section class="wiki-section wiki-local" aria-labelledby="wiki-local-title" data-testid="wiki.local">
+<section
+  class="wiki-section wiki-local"
+  aria-labelledby="wiki-local-title"
+  data-testid="wiki.local"
+  data-pagefind-ignore="all"
+>
   <div class="wiki-section-head">
     <h2 id="wiki-local-title">Local graph</h2>
     <a class="local-open" href={sitePath('/graph')} data-testid="wiki.local.open">Open graph</a>
