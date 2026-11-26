@@ -18,6 +18,16 @@ export type WikiLink = {
  */
 export const WIKILINK_PATTERN = /\[\[([^\[\]|\n]+?)(?:\|([^\[\]\n]*))?\]\]/g;
 
+/** `[[slug|label]]` becomes the label. `[[slug]]` becomes the page title, or the slug. */
+export function plainWikilinkText(value: string, titles: ReadonlyMap<string, string>): string {
+  return value.replace(/\[\[([^\[\]|\n]+?)(?:\|([^\[\]\n]*))?\]\]/g, (_match, slug: string, label?: string) => {
+    const alias = label?.trim();
+    if (alias) return alias;
+    const key = slug.trim();
+    return titles.get(key) ?? key;
+  });
+}
+
 export function wikiPageHref(slug: string, base: string): string {
   return sitePath(`${slug}/`, base);
 }

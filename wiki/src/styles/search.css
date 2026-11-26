@@ -71,7 +71,9 @@
 .search-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(2, 4, 8, 0.62);
+  background: rgba(7, 8, 11, 0.55);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .search-dialog {
@@ -83,16 +85,11 @@
   width: min(720px, calc(100vw - 32px));
   max-height: min(760px, calc(100vh - 11vh - 16px));
   transform: translateX(-50%);
-  border: 1px solid color-mix(in srgb, var(--accent-tint) 62%, white);
+  border: 1px solid #1f6a71;
   border-radius: 16px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--accent-tint) 14%, transparent), transparent 128px),
-    #0c0e12;
+  background: #0c0e12;
   color: var(--body);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--accent-tint) 28%, transparent),
-    0 0 36px color-mix(in srgb, var(--accent-tint) 24%, transparent),
-    0 24px 56px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
   animation: search-in 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -388,34 +385,24 @@
 }
 
 :root[data-theme='light'] .search-backdrop {
-  background: rgba(245, 247, 250, 0.72);
+  background: rgba(245, 247, 250, 0.58);
 }
 
 :root[data-theme='light'] .search-dialog {
-  border-color: color-mix(in srgb, var(--link) 55%, var(--border));
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--accent-tint) 10%, transparent), transparent 128px),
-    #f8fafc;
-  box-shadow:
-    0 18px 40px rgba(11, 13, 18, 0.12),
-    0 0 0 1px color-mix(in srgb, var(--link) 22%, transparent),
-    0 0 28px color-mix(in srgb, var(--accent-tint) 18%, transparent);
+  border-color: color-mix(in srgb, var(--link) 32%, var(--border));
+  background: #f8fafc;
+  box-shadow: 0 16px 36px rgba(11, 13, 18, 0.1);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) .search-backdrop {
-    background: rgba(245, 247, 250, 0.72);
+    background: rgba(245, 247, 250, 0.58);
   }
 
   :root:not([data-theme='dark']) .search-dialog {
-    border-color: color-mix(in srgb, var(--link) 55%, var(--border));
-    background:
-      linear-gradient(180deg, color-mix(in srgb, var(--accent-tint) 10%, transparent), transparent 128px),
-      #f8fafc;
-    box-shadow:
-      0 18px 40px rgba(11, 13, 18, 0.12),
-      0 0 0 1px color-mix(in srgb, var(--link) 22%, transparent),
-      0 0 28px color-mix(in srgb, var(--accent-tint) 18%, transparent);
+    border-color: color-mix(in srgb, var(--link) 32%, var(--border));
+    background: #f8fafc;
+    box-shadow: 0 16px 36px rgba(11, 13, 18, 0.1);
   }
 }
 

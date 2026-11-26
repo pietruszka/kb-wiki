@@ -64,6 +64,17 @@ test('the built site indexes wiki pages and leaves chrome out', async () => {
     expect(text).not.toContain('Pages that link here');
   }
   expect(await search(pagefind, 'github')).toEqual([]);
+
+  const examples = await search(pagefind, 'frontmatter');
+  const example = examples.find((result) => result.url.endsWith('/backlink/'));
+  expect(example?.content ?? '').toContain('missing-page');
+  expect(example?.excerpt ?? '').not.toContain('[[');
+  expect(example?.content ?? '').not.toContain('[[');
+  for (const result of wikiHits) {
+    expect(result.excerpt).not.toContain('[[');
+    expect(result.content ?? '').not.toContain('[[');
+    for (const sub of result.sub_results ?? []) expect(sub.excerpt ?? '').not.toContain('[[');
+  }
 });
 
 type BuiltResult = {
@@ -71,7 +82,7 @@ type BuiltResult = {
   excerpt: string;
   content?: string;
   filters?: Record<string, string[]>;
-  sub_results?: Array<{ url: string; title: string }>;
+  sub_results?: Array<{ url: string; title: string; excerpt?: string }>;
 };
 
 type BuiltPagefind = {
