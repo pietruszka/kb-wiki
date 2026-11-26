@@ -81,7 +81,7 @@
   display: flex;
   flex-direction: column;
   width: min(720px, calc(100vw - 32px));
-  max-height: min(760px, calc(100vh - 48px));
+  max-height: min(760px, calc(100vh - 11vh - 16px));
   transform: translateX(-50%);
   border: 1px solid color-mix(in srgb, var(--accent-tint) 62%, white);
   border-radius: 16px;
@@ -103,6 +103,11 @@
   min-height: 64px;
   padding: 0 16px 0 18px;
   border-bottom: 1px solid color-mix(in srgb, var(--accent-tint) 28%, transparent);
+}
+
+.search-bar:focus-within {
+  border-bottom-color: var(--link);
+  box-shadow: 0 10px 16px -14px color-mix(in srgb, var(--accent-tint) 80%, transparent);
 }
 
 .search-bar .search-icon {

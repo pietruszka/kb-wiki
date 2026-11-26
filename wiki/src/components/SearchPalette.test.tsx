@@ -101,6 +101,62 @@ test('tab changes scope and command enter opens the graph', async () => {
   expect(navigated).toEqual([`${sitePath('/graph')}?focus=llm-wiki`]);
 });
 
+test('enter waits for the query that is on screen', async () => {
+  let release = () => {};
+  const navigated: string[] = [];
+  render(
+    <SearchPalette
+      search={(query) => {
+        if (query === 'wiki') return Promise.resolve({ status: 'ready', rows, ms: 4 });
+        return new Promise((resolve) => {
+          release = () => resolve({ status: 'ready', rows: [rows[2]!], ms: 4 });
+        });
+      }}
+      onNavigate={(href) => navigated.push(href)}
+    />,
+  );
+  fireEvent.click(screen.getByTestId('search.trigger'));
+  await typeQuery('wiki');
+
+  fireEvent.change(screen.getByTestId('search.input'), { target: { value: 'slip' } });
+  fireEvent.keyDown(screen.getByTestId('search.input'), { key: 'Enter' });
+  expect(navigated).toEqual([]);
+  expect(screen.queryByTestId('search.result')).toBeNull();
+
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    release();
+  });
+  expect((await screen.findByTestId('search.result')).getAttribute('data-href')).toBe('/kb-wiki/slip-box/');
+  fireEvent.keyDown(screen.getByTestId('search.input'), { key: 'Enter' });
+  expect(navigated).toEqual(['/kb-wiki/slip-box/']);
+});
+
+test('enter during composition leaves the result closed', async () => {
+  const navigated = renderPalette();
+  fireEvent.click(screen.getByTestId('search.trigger'));
+  await typeQuery('wiki');
+
+  fireEvent.keyDown(screen.getByTestId('search.input'), { key: 'Enter', isComposing: true });
+  expect(navigated).toEqual([]);
+
+  fireEvent.keyDown(screen.getByTestId('search.input'), { key: 'Enter' });
+  expect(navigated).toEqual(['/kb-wiki/llm-wiki/']);
+});
+
+test('a scope click keeps the field focused', async () => {
+  const navigated = renderPalette();
+  fireEvent.click(screen.getByTestId('search.trigger'));
+  await typeQuery('wiki');
+
+  fireEvent.click(screen.getByTestId('search.scope.pages'));
+  expect(document.activeElement).toBe(screen.getByTestId('search.input'));
+  expect(screen.getByTestId('search.scope.pages').getAttribute('aria-selected')).toBe('true');
+
+  fireEvent.keyDown(screen.getByTestId('search.input'), { key: 'Enter' });
+  expect(navigated).toEqual(['/kb-wiki/llm-wiki/']);
+});
+
 test('opening search without a built index explains how to get one', async () => {
   render(<SearchPalette onNavigate={() => {}} />);
   fireEvent.click(screen.getByTestId('search.trigger'));

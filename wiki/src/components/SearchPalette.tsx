@@ -28,6 +28,7 @@ export default function SearchPalette({ search = searchWiki, onNavigate = defaul
   const [cursor, setCursor] = useState(0);
   const [indexReady, setIndexReady] = useState<boolean | null>(search === searchWiki ? null : true);
   const [outcome, setOutcome] = useState<SearchOutcome | null>(null);
+  const [servedQuery, setServedQuery] = useState('');
   const [pending, setPending] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +37,9 @@ export default function SearchPalette({ search = searchWiki, onNavigate = defaul
   searchRef.current = search;
   const titleId = useId();
 
-  const rows = outcome?.status === 'ready' ? outcome.rows : [];
+  const query = text.trim();
+  const current = outcome?.status === 'ready' && servedQuery === query ? outcome : null;
+  const rows = current?.rows ?? [];
   const groups = outcome?.status === 'ready' ? groupRows(rows, scope) : [];
   const visible = flattenGroups(groups);
   const selected = Math.min(cursor, Math.max(0, visible.length - 1));
@@ -92,6 +95,7 @@ export default function SearchPalette({ search = searchWiki, onNavigate = defaul
     const query = text.trim();
     if (!query || indexReady === false) {
       setOutcome(null);
+      setServedQuery('');
       setPending(false);
       return;
     }
@@ -102,6 +106,7 @@ export default function SearchPalette({ search = searchWiki, onNavigate = defaul
         (result) => {
           if (cancel) return;
           setOutcome(result);
+          setServedQuery(query);
           setPending(false);
           setCursor(0);
           if (result.status === 'unavailable') setIndexReady(false);
@@ -129,6 +134,7 @@ export default function SearchPalette({ search = searchWiki, onNavigate = defaul
   }
 
   function onInputKey(event: ReactKeyboardEvent<HTMLInputElement>) {
+    if (event.nativeEvent.isComposing) return;
     if (event.key === 'Escape') {
       event.preventDefault();
       close();
@@ -197,12 +203,13 @@ export default function SearchPalette({ search = searchWiki, onNavigate = defaul
                   onChange={(event) => {
                     setText(event.currentTarget.value);
                     setScope('all');
+                    setPending(event.currentTarget.value.trim().length > 0);
                   }}
                   onKeyDown={onInputKey}
                 />
-                {outcome?.status === 'ready' && text.trim() ? (
+                {current ? (
                   <p className="search-count" data-testid="search.meta">
-                    {counts.all} {counts.all === 1 ? 'result' : 'results'} · {outcome.ms} ms
+                    {counts.all} {counts.all === 1 ? 'result' : 'results'} · {current.ms} ms
                   </p>
                 ) : null}
                 <button type="button" className="search-esc" tabIndex={-1} onClick={close}>
@@ -218,11 +225,11 @@ export default function SearchPalette({ search = searchWiki, onNavigate = defaul
                 <p className="search-note" role="status" data-testid="search.loading">
                   Loading the search index…
                 </p>
-              ) : !text.trim() ? (
+              ) : !query ? (
                 <p className="search-note" data-testid="search.hint">
                   Search titles, page text, tags, and sections.
                 </p>
-              ) : pending && outcome === null ? (
+              ) : pending && current === null ? (
                 <p className="search-note" role="status" data-testid="search.loading">
                   Searching…
                 </p>
@@ -237,9 +244,11 @@ export default function SearchPalette({ search = searchWiki, onNavigate = defaul
                         tabIndex={-1}
                         aria-selected={scope === item.id}
                         data-testid={`search.scope.${item.id}`}
+                        onMouseDown={(event) => event.preventDefault()}
                         onClick={() => {
                           setScope(item.id);
                           setCursor(0);
+                          inputRef.current?.focus();
                         }}
                       >
                         {item.label} <span className="search-scope-count">{counts[item.id]}</span>
