@@ -49,7 +49,7 @@ test('fenced and inline code are not backlinks', () => {
     page({
       slug: 'a',
       title: 'Alpha',
-      body: 'Real [[b]].\n\n`[[missing-page]]`\n\n```\n[[missing-page]]\n```\n',
+      body: 'Real [[b]].\n\n`[[missing-page]]`\n\n``[[missing-page]]``\n\n```\n[[missing-page]]\n```\n',
     }),
     page({ slug: 'b', title: 'Beta', body: '' }),
   ];
