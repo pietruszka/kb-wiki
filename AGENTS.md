@@ -41,6 +41,7 @@ status: draft
 ```
 
 - `title` and `summary` are non-empty. The summary is the sentence copied into `index.md`.
+- Page summaries must not contain apostrophes. They get HTML-escaped and break `pages.test.ts`.
 - `tags` is a list of non-empty strings. Reuse a tag already on a page when it fits. The sample pages use lowercase words.
 - `updated` is the calendar day the page was last revised.
 - `status` is `draft` (the judgement is still open), `stable` (reviewed, and nothing filed since contradicts it), or `stale` (not rechecked). A page this run creates starts as `draft`.

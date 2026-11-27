@@ -7,6 +7,7 @@ The site build reads this file and the pages in `wiki/src/content/wiki`. It fail
 ## Concept
 
 - [Backlink](wiki/src/content/wiki/backlink.md) — The pages that link to this one, collected from their bodies when the site is built.
+- [Cursor rules](wiki/src/content/wiki/cursor-rules.md) — Project, user, and team rules plus AGENTS.md are injected at the start of Agent context, so always-on rules cost tokens on every turn, while glob and description scoping keep the rest off the prompt until needed.
 - [LLM wiki](wiki/src/content/wiki/llm-wiki.md) — A wiki whose pages are written and revised by a language model, from sources a person chooses to keep.
 
 ## Comparison
