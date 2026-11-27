@@ -10,6 +10,13 @@ The date is a real calendar day. The action is `ingest`, `query`, `lint`, or `up
 
 A body line that starts with `+`, `~`, `!`, or `>` is a detail: added, changed, a warning, or filed. Other lines are the note. The README has the same rules.
 
+## [2026-11-27] ingest | Cursor rules
+
+Filed how project rules, user rules, team rules, and AGENTS.md enter Agent context, and which kinds stay out of the prompt until they apply.
+
++ cursor-rules
+~ llm-wiki
+
 ## [2026-11-25] lint | Sample pages pass
 
 The build checks frontmatter and resolves every wikilink. The five sample pages pass.
