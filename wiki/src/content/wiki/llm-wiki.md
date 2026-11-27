@@ -14,7 +14,7 @@ status: stable
 
 An LLM wiki stores a claim on a page. A chat stores it in a transcript that the next session does not reliably keep. The page stays, and the next question starts from it.
 
-The model does the drafting. It reads what was filed, writes one page per idea, and points at related pages with a [[backlink|wikilink]]. Standing instructions for that agent are filed as [[cursor-rules|Cursor rules]]. A person reads the page, corrects it, and files the correction back. The build then checks that every link names a real page.
+The model does the drafting. It reads what was filed, writes one page per idea, and points at related pages with a [[backlink|wikilink]]. Standing instructions for that agent can sit outside the page, for example in [[cursor-rules|Cursor rules]]. A person reads the page, corrects it, and files the correction back. The build then checks that every link names a real page.
 
 That is a different bargain from [[retrieval-vs-compiled-wiki|retrieval]]. Retrieval searches for passages when the question arrives. A compiled page pays the writing cost once and stands until a source changes and the page is revised.
 
