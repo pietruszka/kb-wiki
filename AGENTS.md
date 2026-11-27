@@ -56,6 +56,18 @@ A page with no inbound link fails the build once a second page exists. The error
 
 The home-page orphan count uses this same inbound rule, and it still counts a lone page. The graph control "Show orphans" is a different rule: it hides pages with no edges at all.
 
+## Article markdown
+
+A blockquote is a callout. To give it a kicker, make the first paragraph plain text that starts with `◇` and a label, then a blank line, then the body. The kicker is shown as written. A wikilink in the body resolves as it does elsewhere. A kicker has no wikilink.
+
+```markdown
+> ◇ NOTE
+>
+> Filed from a query. See [[llm-wiki]].
+```
+
+A fenced block whose language is `mermaid` is drawn when the site builds. The panel names the diagram type from the first line of the fence.
+
 ## index.md
 
 One bullet per page, under `## Concept`, `## Comparison`, `## Entity`, or `## Source`. The separator is the em dash ` — `.

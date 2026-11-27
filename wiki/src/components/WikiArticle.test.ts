@@ -93,6 +93,26 @@ test('comparison, entity, and source pages keep their own type', async () => {
   }
 });
 
+test('sources are citations and leave out fields the page does not have', async () => {
+  const html = await article({
+    ...baseProps,
+    sources: [
+      { title: 'A public overview', url: 'https://example.com/overview' },
+      { title: 'Notes with no URL' },
+    ],
+  });
+  expect(html).toContain('[1]');
+  expect(html).toContain('[2]');
+  expect(html).toContain('class="source-title"');
+  expect(html).toContain('example.com · updated 2026-11-25');
+  const second = html.slice(html.indexOf('[2]'));
+  expect(second).toContain('Notes with no URL');
+  expect(second).not.toContain('example.com');
+  expect(second).toContain('updated 2026-11-25');
+  expect(html).not.toContain('cited');
+  expect(html).not.toContain('ingested');
+});
+
 test('a page with no inbound links and no sources says so', async () => {
   const html = await article({ ...baseProps, backlinks: [], sources: [], tags: [], neighbours: [] });
   expect(html).toContain('data-testid="wiki.backlinks.empty"');

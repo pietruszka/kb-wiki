@@ -2,7 +2,7 @@
 import LocalGraph from './LocalGraph.astro';
 import PageTypeBadge from './PageTypeBadge.astro';
 import type { GraphNeighbour } from '../lib/graph';
-import { countNoun, formatWikiDate, sourceHostname } from '../lib/format';
+import { countNoun, formatWikiDate, sourceCitationMeta } from '../lib/format';
 import { sitePath } from '../lib/paths';
 import type { PageType } from '../lib/page-types';
 import type { PageStatus, WikiSource } from '../lib/wiki-schema';
@@ -124,20 +124,31 @@ const updatedIso = formatWikiDate(updated);
         </p>
       ) : (
         <ol class="source-list">
-          {sources.map((source) => (
-            <li>
-              {source.url ? (
-                <a href={source.url} rel="noreferrer" data-testid="wiki.sources.link">
-                  {source.title}
-                </a>
-              ) : (
-                source.title
-              )}
-              {source.url && <p class="source-host">{sourceHostname(source.url)}</p>}
-            </li>
-          ))}
+          {sources.map((source, index) => {
+            const meta = sourceCitationMeta(source.url, updatedIso);
+            return (
+              <li class="source-cite">
+                <span class="source-index">[{index + 1}]</span>
+                <div class="source-cite-body">
+                  {source.url ? (
+                    <a class="source-title" href={source.url} rel="noreferrer" data-testid="wiki.sources.link">
+                      {source.title}
+                    </a>
+                  ) : (
+                    <span class="source-title">{source.title}</span>
+                  )}
+                  {meta && <p class="source-meta">{meta}</p>}
+                </div>
+              </li>
+            );
+          })}
         </ol>
       )
     }
   </section>
 </div>
+<script>
+  import { bindMermaidPanels } from '../lib/mermaid-panel';
+
+  bindMermaidPanels(document);
+</script>
