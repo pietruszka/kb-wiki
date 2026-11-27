@@ -3,8 +3,8 @@ import { unified } from '@astrojs/markdown-remark';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import { defineConfig } from 'astro/config';
-import { rehypeIndexWikilinks } from './src/lib/rehype-index-wikilinks';
-import { remarkWikilinks } from './src/lib/remark-wikilinks';
+import { articleRehypePlugins, articleRemarkPlugins } from './src/lib/article-markdown';
+import { closeMermaidBrowser } from './src/lib/mermaid-render';
 import { SITE_BASE, SITE_ORIGIN } from './src/lib/site';
 
 const wikiDir = fileURLToPath(new URL('./src/content/wiki', import.meta.url));
@@ -16,14 +16,24 @@ const wikiDir = fileURLToPath(new URL('./src/content/wiki', import.meta.url));
 export default defineConfig({
   site: SITE_ORIGIN,
   base: SITE_BASE,
-  integrations: [mdx(), react()],
+  integrations: [
+    mdx(),
+    react(),
+    {
+      name: 'kb-wiki-mermaid',
+      hooks: {
+        'astro:build:done': () => closeMermaidBrowser(),
+        'astro:server:done': () => closeMermaidBrowser(),
+      },
+    },
+  ],
   markdown: {
     // Plain code blocks follow the theme tokens. The default highlighter
     // inlines a dark theme, which breaks the light page.
     syntaxHighlight: false,
     processor: unified({
-      remarkPlugins: [[remarkWikilinks, { dir: wikiDir, base: SITE_BASE }]],
-      rehypePlugins: [[rehypeIndexWikilinks, { dir: wikiDir }]],
+      remarkPlugins: articleRemarkPlugins(wikiDir, SITE_BASE),
+      rehypePlugins: articleRehypePlugins(wikiDir),
     }),
   },
 });

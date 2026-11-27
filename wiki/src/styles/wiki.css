@@ -47,19 +47,34 @@
 }
 
 .wiki-title {
+  width: fit-content;
+  max-width: 100%;
   margin: 12px 0 0;
-  color: var(--text);
+  color: var(--title-from);
   font-family: var(--font-display);
-  font-size: clamp(32px, 6vw, 44px);
+  font-size: clamp(32px, 7vw, 52px);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+  letter-spacing: -1.5px;
+  line-height: 1.1154;
   text-wrap: balance;
+  background-image: linear-gradient(90deg, var(--title-from) 0%, var(--title-from) 50%, var(--title-to) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.wiki-title::selection {
+  -webkit-text-fill-color: var(--title-from);
+  color: var(--title-from);
 }
 
 .article .wiki-summary {
-  margin: 16px 0 0;
-  color: var(--body);
+  margin: 20px 0 0;
+  color: var(--lede);
+  font-family: var(--font-body);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 30px;
 }
 
 .wiki-meta {
@@ -153,13 +168,234 @@
   margin-top: 8px;
 }
 
+.article .wiki-body blockquote {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0 0;
+  padding: 14px 18px;
+  border: 0;
+  border-left: 2px solid var(--callout-bar);
+  border-radius: 0;
+  background: var(--callout-bg);
+  color: var(--body);
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.article .wiki-body blockquote p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.article .wiki-body blockquote .callout-kicker {
+  color: var(--callout-kicker);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.88px;
+  line-height: 16px;
+}
+
+.table-scroll {
+  margin-top: 16px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-node);
+  background: var(--table-bg);
+  box-shadow: none;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.table-scroll table {
+  width: 100%;
+  min-width: max(100%, min-content);
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.table-scroll th,
+.table-scroll td {
+  padding: 11px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table-scroll th {
+  padding-block: 10px;
+  background: var(--table-head-bg);
+  color: var(--quiet);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.88px;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.table-scroll thead th {
+  border-bottom: 1px solid var(--border);
+}
+
+.table-scroll td {
+  color: var(--body);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.table-scroll td:first-child {
+  min-width: 7.5rem;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.table-scroll tbody tr + tr td {
+  border-top: 1px solid var(--table-line);
+}
+
+.mermaid-panel {
+  margin: 16px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-node);
+  background: var(--mermaid-bg);
+  box-shadow: none;
+}
+
+.mermaid-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--mermaid-head-bg);
+}
+
+.article .mermaid-label {
+  margin: 0;
+  color: var(--quiet);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.4px;
+  line-height: 16px;
+}
+
+.mermaid-controls {
+  display: flex;
+  flex: none;
+  gap: 10px;
+}
+
+.mermaid-control {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 16px;
+  cursor: pointer;
+}
+
+.mermaid-control:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.mermaid-canvas {
+  padding: 16px 12px 8px;
+}
+
+.mermaid-canvas svg {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+}
+
+.mermaid-svg[data-mermaid-theme='light'] {
+  display: none;
+}
+
+:root[data-theme='light'] .mermaid-svg[data-mermaid-theme='dark'] {
+  display: none;
+}
+
+:root[data-theme='light'] .mermaid-svg[data-mermaid-theme='light'] {
+  display: block;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .mermaid-svg[data-mermaid-theme='dark'] {
+    display: none;
+  }
+
+  :root:not([data-theme='dark']) .mermaid-svg[data-mermaid-theme='light'] {
+    display: block;
+  }
+}
+
+.article .wiki-body .mermaid-source {
+  margin: 0 12px 12px;
+}
+
+.mermaid-source[hidden] {
+  display: none;
+}
+
+.article .mermaid-hint {
+  margin: 0;
+  padding: 0 20px 12px;
+  color: var(--mermaid-hint);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 14px;
+}
+
+.mermaid-dialog {
+  width: min(1100px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-node);
+  background: var(--mermaid-bg);
+  color: var(--body);
+}
+
+.mermaid-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
 .wiki-body :not(pre) > code {
-  padding: 0.1em 0.35em;
+  padding: 0.06em 0.28em;
+  margin: 0;
+  /* Horizontal padding is layout space, so a following comma sits in a gap.
+     Pull the end margin back and the punctuation meets the glyph. */
+  margin-right: -0.22em;
   border-radius: var(--radius-badge);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
   background: var(--code-bg);
   color: var(--text);
   font-family: var(--font-mono);
-  font-size: 0.85em;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 22px;
+  vertical-align: baseline;
 }
 
 .wiki-body pre {
@@ -251,20 +487,63 @@
 .source-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
   margin: 16px 0 0;
-  padding-left: 1.5em;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--table-line);
 }
 
-.source-list li::marker {
-  color: var(--link);
+.source-cite {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--table-line);
+}
+
+.source-index {
+  flex: none;
+  width: 28px;
+  color: var(--cyan);
   font-family: var(--font-mono);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
+  line-height: 22px;
 }
 
-.article .backlink-list p,
-.article .source-host {
+.source-cite-body {
+  min-width: 0;
+}
+
+.source-title {
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.article a.source-title {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.article a.source-title:hover {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+.article .source-meta {
+  margin: 0;
+  color: var(--quiet);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.article .backlink-list p {
   margin: 4px 0 0;
   color: var(--text-2);
   font-size: 14px;
