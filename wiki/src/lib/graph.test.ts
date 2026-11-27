@@ -4,7 +4,8 @@ import { GET } from '../pages/graph.json';
 import { buildGraph, degreeOf, GRAPH_SEED, GRAPH_TICKS, type GraphSource } from './graph';
 import { loadWikiPages } from './wiki-catalog';
 
-const contentDir = fileURLToPath(new URL('../content/wiki', import.meta.url));
+// Frozen corpus. The graph.json route test below still reads the live notes and compares them to themselves.
+const fixtureDir = fileURLToPath(new URL('../fixtures/wiki', import.meta.url));
 
 function source(partial: Partial<GraphSource> & Pick<GraphSource, 'slug' | 'body'>): GraphSource {
   return {
@@ -33,7 +34,7 @@ const expectedEdges = [
 ];
 
 test('graph.json has one node per page and one edge per wikilink', () => {
-  const pages = loadWikiPages(contentDir);
+  const pages = loadWikiPages(fixtureDir);
   const graph = buildGraph(
     pages.map((page) => ({
       slug: page.slug,
@@ -110,8 +111,19 @@ test('the graph.json route repeats the same document', async () => {
   expect(first.headers.get('content-type')).toContain('application/json');
 
   const parsed = JSON.parse(body) as { nodes: { slug: string }[]; edges: unknown[]; seed: number };
-  const pages = loadWikiPages(contentDir);
-  expect(parsed.seed).toBe(42);
-  expect(parsed.nodes.map((node) => node.slug).sort()).toEqual(pages.map((page) => page.slug).sort());
-  expect(parsed.edges).toEqual(expectedEdges);
+  const pages = loadWikiPages(fileURLToPath(new URL('../content/wiki', import.meta.url)));
+  const expected = buildGraph(
+    pages.map((page) => ({
+      slug: page.slug,
+      title: page.data.title,
+      type: page.data.type,
+      status: page.data.status,
+      tags: page.data.tags,
+      body: page.body,
+      file: page.file,
+    })),
+  );
+  expect(parsed.seed).toBe(GRAPH_SEED);
+  expect(parsed.nodes.map((node) => node.slug).sort()).toEqual(expected.nodes.map((node) => node.slug).sort());
+  expect(parsed.edges).toEqual(expected.edges);
 });

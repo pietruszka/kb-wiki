@@ -5,7 +5,8 @@ import { formatWikiDate } from './format';
 import { loadWikiPages } from './wiki-catalog';
 import { brokenWikilinkMessage } from './wikilinks';
 
-const contentDir = fileURLToPath(new URL('../content/wiki', import.meta.url));
+// Frozen corpus. Live notes in src/content/wiki can grow without changing these assertions.
+const fixtureDir = fileURLToPath(new URL('../fixtures/wiki', import.meta.url));
 
 function page(partial: Partial<WikiRecord> & Pick<WikiRecord, 'slug' | 'body'>): WikiRecord {
   return {
@@ -56,8 +57,8 @@ test('fenced and inline code are not backlinks', () => {
   expect(backlinksBySlug(pages, '/').get('b')?.map((link) => link.slug)).toEqual(['a']);
 });
 
-test('the sample pages link each other and keep their dates', () => {
-  const loaded = loadWikiPages(contentDir);
+test('the fixture pages link each other and keep their dates', () => {
+  const loaded = loadWikiPages(fixtureDir);
   const graph = backlinksBySlug(
     loaded.map((entry) => ({
       slug: entry.slug,
